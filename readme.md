@@ -1,297 +1,129 @@
-# Auntie Som API Testing Submission
+# ทดสอบ API ร้านก๋วยเตี๋ยวป้าส้มด้วย Bruno
 
-This fork audits the supplied Flask API using **45 Bruno requests in nine isolated scenarios**. The backend is unchanged. The tests assert the intended contract and preserve failures that expose defects.
+Repository นี้ใช้ฝึกทดสอบ API ของระบบสั่งอาหาร โดยใช้ Flask เป็น API และ Bruno เป็นเครื่องมือส่งคำขอพร้อมตรวจสอบผลอัตโนมัติ ครอบคลุมการเข้าสู่ระบบ การดูเมนู การสั่งอาหาร การคำนวณราคา และการเปลี่ยนแปลงสต็อก
 
-## Verified results
+## สิ่งที่ทำใน repository นี้
 
-The native collection completed **149 checks: 128 passed and 21 failed**. These failures represent backend defects, not an expectation that the deliberately broken API should pass every check. The three main findings are incorrect pricing, overselling, and an incorrect missing-order status. Additional findings concern invalid quantities.
+- เพิ่ม Bruno Collection ชื่อ **Auntie Som Lab** จำนวน **45 คำขอ แบ่งเป็น 9 กลุ่มทดสอบ**
+- เขียนสคริปต์ตรวจสอบ HTTP status รูปแบบข้อมูล ราคา และสต็อก พร้อมเก็บ token และรหัสคำสั่งซื้อไปใช้ในคำขอถัดไป
+- เพิ่มสคริปต์เปิด API ใหม่ก่อนทดสอบแต่ละกลุ่ม เพื่อให้สต็อกและข้อมูลเริ่มต้นเหมือนกันทุกครั้ง
+- สร้างไฟล์ Collection แบบ JSON และตรวจสอบการนำกลับเข้าใช้งานด้วย parser และ importer ของ Bruno
+- รันทดสอบทั้ง Collection ต้นฉบับและ Collection ที่นำกลับเข้าจาก JSON แล้วได้ผลตรงกันทุกคำขอและทุกเงื่อนไขตรวจสอบ
+- เก็บรายงานผลที่ลบ token ออกแล้ว โดยใช้โค้ด API เดิมใน `auntie-som-noodle-api/app.py`
 
-- Native collection: [`bruno/`](bruno/)
-- Importable Bruno Collection JSON: [`exports/Auntie-Som-Lab.json`](exports/Auntie-Som-Lab.json)
-- Human-readable execution evidence: [`reports/audit-results.md`](reports/audit-results.md)
-- Sanitized response and assertion evidence: [`reports/audit-results.json`](reports/audit-results.json)
-- Export verification: [`reports/export-verification.json`](reports/export-verification.json)
-- Reimported execution evidence: [`reports/reimport-results.json`](reports/reimport-results.json)
+| ไฟล์หรือโฟลเดอร์ | ใช้สำหรับ |
+| --- | --- |
+| [`auntie-som-noodle-api/`](auntie-som-noodle-api/) | API ที่ใช้ทดสอบ |
+| [`bruno/`](bruno/) | Collection และคำขอทดสอบแบบ `.bru` |
+| [`exports/Auntie-Som-Lab.json`](exports/Auntie-Som-Lab.json) | Collection แบบ JSON สำหรับนำเข้า Bruno |
+| [`scripts/run_lab.py`](scripts/run_lab.py) | เปิด API และรันทดสอบแยกทีละกลุ่ม |
+| [`scripts/verify-export.cjs`](scripts/verify-export.cjs) | ตรวจสอบว่า JSON และ Collection ที่นำกลับเข้ามามีข้อมูลตรงกับต้นฉบับ |
+| [`reports/audit-results.md`](reports/audit-results.md) | สรุปเงื่อนไขที่ทดสอบไม่ผ่าน |
+| [`reports/audit-results.json`](reports/audit-results.json) | ผลตอบกลับและผลตรวจสอบของ Collection ต้นฉบับ |
+| [`reports/reimport-results.json`](reports/reimport-results.json) | ผลทดสอบของ Collection ที่นำกลับเข้าจาก JSON |
+| [`reports/export-verification.json`](reports/export-verification.json) | ผลตรวจสอบไฟล์ส่งออกและการเปรียบเทียบผลทดสอบ |
 
-## Setup and automatic execution
+## ผลทดสอบและปัญหาที่พบ
 
-Prerequisites: Python 3.10+, Node.js 22+, npm, Git, and Bruno Desktop if using the graphical client. Tested with Python 3.14.7, Node.js 22.14.0, Flask 3.1.3, and Bruno CLI 4.2.1. The official Bruno Desktop 4.2.1 portable Windows build was downloaded locally; see the export note below.
+รันทดสอบครบ **45 คำขอ รวม 149 เงื่อนไขตรวจสอบ ผ่าน 128 และไม่ผ่าน 21 เงื่อนไข** ผลที่ไม่ผ่านแสดงปัญหาของ API ซึ่งยังคงตรวจสอบตามพฤติกรรมที่คาดหวังไว้ในชุดทดสอบ
 
-From the repository root, run these PowerShell commands:
+### ปัญหาหลัก 3 ข้อ
+
+| ปัญหา | วิธีทดสอบ | ผลที่คาดหวัง | ผลที่พบจริง |
+| --- | --- | --- | --- |
+| คำนวณราคาต่ำกว่าที่ควรเป็น 5 | กลุ่ม `02-valid-order-and-price` สั่งเมนูรหัส 1 จำนวน 1 แล้วเรียกดูคำสั่งซื้อ | ราคาเมนู 50 × จำนวน 1 ได้ยอดรวม 50 | ทั้งตอนสร้างและเรียกดูคำสั่งซื้อได้ยอดรวม 45 เพราะ API หัก 5 ออกจากยอดรวม |
+| สั่งเกินสต็อกได้ | กลุ่ม `04-overstock` สั่งเมนูรหัส 1 จำนวน 3 ขณะที่มีสต็อก 2 | HTTP 400 และสต็อกยังเป็น 2 | HTTP 200 สร้างคำสั่งซื้อสำเร็จ และสต็อกกลายเป็น -1 |
+| ค้นหาคำสั่งซื้อที่ไม่มีอยู่แล้วได้สถานะสำเร็จ | กลุ่ม `01-contract-and-auth` เรียก `GET /orders/ORD-does-not-exist` | HTTP 404 พร้อมข้อความผิดพลาด | HTTP 200 แม้ในข้อมูลตอบกลับมี `Order not found` |
+
+การตรวจสอบราคาคำนวณจากราคาในเมนูคูณจำนวนที่สั่ง โดยถือว่าไม่มีส่วนลด เพราะไม่มีเงื่อนไขส่วนลดระบุไว้
+
+### ปัญหาเพิ่มเติมเกี่ยวกับจำนวนที่สั่ง
+
+ผลต่อไปนี้ทดสอบโดยเริ่ม API ใหม่ทุกกรณี ใช้เมนูรหัส 1 ราคา 50 และสต็อกเริ่มต้น 2
+
+| ค่าที่ส่ง | ผลที่พบจริง |
+| --- | --- |
+| `quantity: 0` | สร้างคำสั่งซื้อได้ ยอดรวม -5 และสต็อกยังเป็น 2 |
+| `quantity: -1` | สร้างคำสั่งซื้อได้ ยอดรวม -55 และสต็อกเพิ่มเป็น 3 |
+| ไม่ส่ง `quantity` | HTTP 500 และตอบกลับเป็น HTML |
+| `quantity: 1.5` | สร้างคำสั่งซื้อได้ ยอดรวม 70 และสต็อกเหลือ 0.5 |
+| `quantity: "one"` | HTTP 500 และตอบกลับเป็น HTML |
+
+ชุดทดสอบคาดหวังให้จำนวนที่ไม่ถูกต้องได้รับ HTTP 400 หรือ 422 พร้อมข้อความผิดพลาดแบบ JSON และสต็อกต้องไม่เปลี่ยนแปลง
+
+## วิธีติดตั้งและรันทดสอบอัตโนมัติ
+
+ต้องมี Python 3.10 ขึ้นไป, Node.js 22 ขึ้นไป, npm และ Git คำสั่งด้านล่างใช้กับ PowerShell บน Windows โดยเครื่องที่ใช้ทดสอบจริงเป็น Python 3.14.7, Node.js 22.14.0, Flask 3.1.3 และ Bruno CLI 4.2.1
 
 ```powershell
+git clone https://github.com/chayathorn-nk/api-testing-course.git
+cd api-testing-course
 python -m venv .venv
 .\.venv\Scripts\python.exe -m pip install -r requirements.txt
 npm.cmd ci
 npm.cmd test
 ```
 
-`npm test` starts the unchanged API on port 5000, waits for the initial menu inventory, runs one scenario, stops its owned server process tree, and repeats with a fresh API for each remaining scenario. It does not stop an unrelated server already using port 5000. Disable any independently running API before starting the runner.
+ก่อนรัน ให้หยุด API ที่เปิดค้างอยู่บนพอร์ต `5000` สคริปต์จะเปิด API ที่ `http://localhost:5000` เอง รอจนพร้อมใช้งาน รันทดสอบหนึ่งกลุ่ม แล้วปิด API ก่อนเริ่มกลุ่มถัดไป เมื่อเสร็จแต่ละกลุ่มจะล้าง token ใน environment
 
-The expected exit code against the supplied backend is **1**, indicating genuine failed assertions. Exit **2** indicates setup or execution failure. Requests continue after failed assertions; there is no `--bail`. The runner checks that each scenario actually executed all its request files with tests and no transport/script errors. An HTTP 500 response is still tested and recorded as an API defect.
+เมื่อใช้ API ปัจจุบัน คำสั่งทดสอบจะจบด้วย **exit code 1** เพราะตรวจพบข้อผิดพลาดข้างต้น ส่วน **exit code 2** หมายถึงปัญหาการตั้งค่าหรือการรันทดสอบ อ่านผลสรุปได้ที่ [`reports/audit-results.md`](reports/audit-results.md)
 
-Run a single scenario with:
+หากต้องการรันเฉพาะกลุ่ม เช่น การสั่งเกินสต็อก ให้ใช้:
 
 ```powershell
 python scripts/run_lab.py --scenario 04-overstock
 ```
 
-A single-scenario run overwrites the summary reports; run the full suite again before publishing results. Individual raw CLI reports are in ignored `reports/raw/`. They can contain ephemeral tokens and must not be committed. Published reports omit authorization headers and redact tokens; `local.bru` is restored to an empty token after every scenario, including failed runs.
+การรันเฉพาะกลุ่มจะเขียนทับรายงานสรุปเดิม หากต้องการรายงานครบทุกกลุ่ม ให้รัน `npm.cmd test` อีกครั้ง
 
-## Bruno Desktop and manual CLI execution
+## วิธีใช้ผ่าน Bruno Desktop
 
-Copy `bruno/environments/local.example.bru` to `bruno/environments/local.bru`, open the `bruno` folder in Bruno Desktop, and select the **local** environment. Its variables are `baseUrl=http://localhost:5000`, `username=student`, `password=hungry`, and an initially empty `accessToken`. These credentials are public course fixtures.
+1. ติดตั้ง Bruno Desktop แล้วเปิดโฟลเดอร์ `bruno` เป็น Collection
+2. สร้าง environment สำหรับใช้งานจากไฟล์ตัวอย่าง:
 
-Login post-response scripts use `bru.setEnvVar('accessToken', ...)`, and order requests use `Bearer {{accessToken}}`. Bruno 4 persists environment writes, so the active local environment is ignored by Git. Runtime variables hold menu snapshots, expected totals, order IDs, and created-order responses. Order IDs are captured before pricing assertions run.
+   ```powershell
+   Copy-Item bruno/environments/local.example.bru bruno/environments/local.bru
+   ```
 
-For each folder in the following order, start a fresh API using the command below, run **that folder only** using Bruno's folder runner, then stop the API with Ctrl+C before starting the next folder. Running the entire collection against one server instance does not isolate inventory.
+3. เลือก environment ชื่อ `local` ซึ่งกำหนด `baseUrl` เป็น `http://localhost:5000` และใช้บัญชีทดสอบ `student` / `hungry` โดยเว้น `accessToken` ว่างไว้
+4. เปิด API จากโฟลเดอร์หลักของ repository:
 
-```powershell
-.\.venv\Scripts\python.exe -m flask --app auntie-som-noodle-api/app.py run --host 127.0.0.1 --port 5000 --no-debugger --no-reload
-```
+   ```powershell
+   .\.venv\Scripts\python.exe -m flask --app auntie-som-noodle-api/app.py run --host 127.0.0.1 --port 5000 --no-debugger --no-reload
+   ```
 
-| Order / folder | Requests | Coverage |
-| --- | ---: | --- |
-| `01-contract-and-auth` | 10 | Menu schema, correct/incorrect login, missing/invalid token, unknown item, missing order, unchanged stock after rejection |
-| `02-valid-order-and-price` | 5 | Create order, calculated total, response chaining, retrieve matching order, stock decrement |
-| `03-exhausted-stock` | 6 | Buy the last fried rice, reject a second purchase, preserve exhausted inventory |
-| `04-overstock` | 4 | Reject quantity 3 when stock is 2; preserve stock and prohibit negative inventory |
-| `05-zero-quantity` | 4 | Reject quantity 0 and preserve stock |
-| `06-negative-quantity` | 4 | Reject quantity -1 and preserve stock |
-| `07-missing-quantity` | 4 | Reject an omitted quantity gracefully and preserve stock |
-| `08-fractional-quantity` | 4 | Reject quantity 1.5 and preserve stock |
-| `09-string-quantity` | 4 | Reject quantity `"one"` gracefully and preserve stock |
+5. รันทีละโฟลเดอร์ตามตารางด้านล่าง แต่ละกลุ่มมีคำขอ Login เพื่อเก็บ token อัตโนมัติ หลังจบแต่ละกลุ่มให้หยุด API ด้วย `Ctrl+C` แล้วเปิดใหม่ด้วยคำสั่งเดิมก่อนรันกลุ่มถัดไป
 
-For manual CLI use, while a fresh API is running, change into `bruno` and run:
-
-```powershell
-..\node_modules\.bin\bru.cmd run 04-overstock --env local --reporter-json ..\reports\raw\manual-overstock.json --reporter-skip-all-headers
-```
-
-Create `reports/raw` first if needed. Restart the API and run Login again for every scenario. Copy the example environment over `local.bru` after finishing to clear the persisted token. Prefer `npm test` for automatic reset and cleanup.
-
-## Three main bug reports
-
-### BUG-01: Every order is undercharged by 5
-
-- **Test:** `02-valid-order-and-price / Create valid order`, check `BUG-01 Total equals menu price times quantity`; repeated on `Retrieve created order`.
-- **Reproduce:** Start a fresh API, log in, read `/menu`, then submit `POST /orders` with `{"itemId":1,"quantity":1}` and the valid token. Retrieve the returned order ID.
-- **Expected:** Tom Yum's menu price is 50, so both responses should show `totalPrice: 50`.
-- **Observed:** Both responses show `totalPrice: 45`. Both pricing assertions fail; creation/retrieval schema, ID chaining, and stock checks pass.
-- **Impact:** Every accepted order loses 5 in revenue. The backend computes `(price * quantity) - 5` without a documented discount.
-
-### BUG-02: An order can exceed available stock
-
-- **Tests:** `04-overstock / Reject excess quantity` and `Inventory after rejection`.
-- **Reproduce:** With fresh Tom Yum stock of 2, log in and submit `{"itemId":1,"quantity":3}`, then read `/menu`.
-- **Expected:** HTTP 400 with a JSON error; stock stays 2.
-- **Observed:** HTTP 200 creates an order, and stock becomes -1. The status, error-body, unchanged-stock, and nonnegative-inventory checks fail.
-- **Impact:** The stall accepts orders it cannot fulfill. The backend checks only whether current stock is positive, rather than whether it covers the requested quantity.
-
-### BUG-03: Missing orders return a success status
-
-- **Test:** `01-contract-and-auth / Missing order`, check `HTTP status is 404`.
-- **Reproduce:** Request `GET /orders/ORD-does-not-exist` against a fresh server.
-- **Expected:** HTTP 404 with `{"error":"Order not found"}`.
-- **Observed:** The error body is present, but the status is HTTP 200.
-- **Impact:** Clients and monitoring that depend on status codes can treat missing resources as successful lookups.
-
-## Additional findings and contract assumptions
-
-| Payload | Observed behavior |
+| กลุ่มทดสอบ | สิ่งที่ตรวจสอบ |
 | --- | --- |
-| `quantity: 0` | HTTP 200 creates an order with total -5; stock remains 2 |
-| `quantity: -1` | HTTP 200 creates an order with total -55; stock increases to 3 |
-| Missing `quantity` | HTTP 500 HTML response instead of a structured client error |
-| `quantity: 1.5` | HTTP 200 creates an order with total 70; stock becomes 0.5 |
-| `quantity: "one"` | HTTP 500 HTML response instead of a structured client error |
+| `01-contract-and-auth` | เมนู การเข้าสู่ระบบ token ที่ขาดหายหรือไม่ถูกต้อง เมนูและคำสั่งซื้อที่ไม่มีอยู่ |
+| `02-valid-order-and-price` | สร้างและเรียกดูคำสั่งซื้อ คำนวณราคา และลดสต็อก |
+| `03-exhausted-stock` | สั่งสินค้าชิ้นสุดท้าย แล้วตรวจสอบการปฏิเสธเมื่อสต็อกหมด |
+| `04-overstock` | สั่งจำนวนมากกว่าสต็อกที่มี |
+| `05-zero-quantity` | จำนวนที่สั่งเป็นศูนย์ |
+| `06-negative-quantity` | จำนวนที่สั่งติดลบ |
+| `07-missing-quantity` | ไม่ส่งจำนวนที่สั่ง |
+| `08-fractional-quantity` | จำนวนที่สั่งเป็นทศนิยม |
+| `09-string-quantity` | จำนวนที่สั่งเป็นข้อความ |
 
-For invalid quantities, the test accepts either HTTP 400 or 422 with a JSON error because the activity does not define an exact validation-error code. Positive order totals are calculated from the live menu, assuming no discount because none is specified by the business rules. The original README's example total of 45 conflicts with the menu price of 50; the test deliberately exposes that discrepancy instead of treating the example as an undocumented discount. Successful order creation expects HTTP 200 as documented by this API, rather than imposing a generic HTTP 201 convention.
+เมื่อใช้งานเสร็จ ให้คัดลอกไฟล์ environment ตัวอย่างทับ `local.bru` อีกครั้งเพื่อล้าง token ไฟล์ `local.bru` และรายงานดิบใน `reports/raw/` ถูกกำหนดให้อยู่ใน `.gitignore`
 
-The `GET /orders/<id>` endpoint has no documented authentication requirement, and the supplied API has one account with no roles or ownership model. Multi-user IDOR, admin permissions, token expiry, and the slides' separate checkout/concurrency examples are outside this submission. Response time is observed by Bruno but has no invented pass/fail SLA.
+## วิธีตรวจสอบ Collection แบบ JSON
 
-## JSON export and verification
+ไฟล์ [`exports/Auntie-Som-Lab.json`](exports/Auntie-Som-Lab.json) มีคำขอ สคริปต์ เงื่อนไขตรวจสอบ และ environment ที่เว้น token ว่างไว้ สามารถนำเข้าผ่านเมนู **Import Collection → Bruno Collection**
 
-The JSON uses native **Bruno Collection** format, not a CLI results JSON or a Postman conversion. It includes all nine folders, 45 requests, post-response scripts, tests, and the sanitized local environment.
+ในงานนี้สร้าง JSON และตรวจสอบการนำกลับเข้าด้วยเครื่องมือของ Bruno ผ่านสคริปต์ เนื่องจาก Bruno Desktop ที่ดาวน์โหลดมาไม่สามารถเปิดหน้าต่างใช้งานได้บนเครื่องที่ทดสอบ
 
-Bruno Desktop 4.2.1's portable build did not expose a usable window on this machine; an initial launch also logged a failure loading its bundled `web/index.html`. Therefore the export was created with the official pinned Bruno parser and validated using Bruno's collection schema, then reimported with the collection importer shipped in its CLI. No GUI export or GUI reimport is claimed.
+ตรวจสอบไฟล์ JSON ที่มีอยู่ด้วย:
 
 ```powershell
-node scripts/verify-export.cjs --write
 npm.cmd run verify:export
 ```
 
-The verification compares every parsed request, body, header, script, assertion, sequence, and environment variable before and after reimport. It also verifies that the exported token is empty. A temporary native collection is created under ignored `.local/` for execution.
+หากแก้ไข Collection ใน `bruno/` แล้วต้องการสร้าง JSON ใหม่ ให้ใช้:
 
-The reimported collection was also executed against nine fresh API instances: **45 requests, 149 checks, 128 passed, 21 failed**, matching every native request status and test outcome. This archived comparison is checked by `npm run verify:export`.
+```powershell
+node scripts/verify-export.cjs --write
+```
 
-On a machine where Bruno Desktop opens normally, use the collection's **Share -> Export -> Bruno Collection** option to export JSON, then **Import Collection -> Bruno Collection** to reopen it in a different directory. Keep generated tokens empty when exporting.
-
-## Submission
-
-Repository: https://github.com/chayathorn-nk/api-testing-course
-
-Submit this fork's link to the instructor through Discord DM. The native collection, JSON export, README, and sanitized evidence are the submission artifacts. Installation folders, active tokens, virtual environments, raw reports, and downloaded tools are ignored.
-
-The work follows the [original lab](https://github.com/foname/api-testing-course) and the supplied lecture PDF: pages 26-39 cover environments, assertions, chaining, and reviewing generated scripts; page 60 requires three documented bugs and a JSON collection.
-
----
-
-## Original course instructions
-
-# 🍜 API Testing Lab: Auntie Som’s Noodle Stall
-
-> **Objective:** Prove that Nephew Lek’s "it works on my machine" attitude is a recipe for disaster.
-
----
-
-## 📖 The Backstory
-
-Auntie Som runs a **legendary noodle stall**. Her Tom Yum is world-class, her customers are loyal, and her business is booming.  
-
-Recently, her nephew **Lek** (who just finished a 2-week coding bootcamp) decided to "digitize" the business. He built a backend API to handle online orders. Auntie Som is thrilled, but the code… well, Lek says:  
-
-> *"It’s fine lah Auntie! I tested it once with my own phone. No need for professional testing!"*
-
-**You are the Last Line of Defense.**  
-Before Auntie Som launches this app to 1,000+ hungry customers, you must audit the system, find the logic flaws, and automate the validation using **Bruno**.
-
----
-
-## 🎯 Learning Objectives
-
-By the end of this lab, you should be able to:
-- 🖋️ Write **Bruno test scripts** for automated validation.
-- 📦 Extract values from API responses using **Post-response scripts**.
-- 🔐 Manage and use **Environment Variables**.
-- 🧠 Verify **Business Rules**, not just HTTP status codes.
-- 🚀 Catch regressions automatically before they hit production.
-
----
-
-## 🛠️ Setup Instructions
-
-### 1️⃣ Prepare the Project
-- **Fork this repository** to your own GitHub account.
-- **Clone it** locally to your machine.
-
-### 2️⃣ Start the API Server
-The backend is a lightweight Flask application.
-- **Requirements:** Python 3.10+ installed.
-- **Navigate** to the `auntie-som-noodle-api` folder.
-- **Install dependencies:**  
-  ```bash
-  pip install flask
-  ```
-- **Run the server:**  
-  ```bash
-  python app.py
-  ```
-- The server will run at: `http://localhost:5000`
-
-### 3️⃣ Setup Bruno
-- Download and install [Bruno](https://www.usebruno.com).
-- Create a **New Collection** named `Auntie Som Lab`.
-- Create an **Environment** (e.g., `local`) and set a variable `baseUrl` to `http://localhost:5000`.
-
----
-
-## 📑 API Reference
-
-### 🔐 Authentication
-`POST /auth/login` - Get an access token.
-- **Body (JSON):**
-  ```json
-  {
-    "username": "student",
-    "password": "hungry"
-  }
-  ```
-- **Response (200 OK):**
-  ```json
-  {
-    "accessToken": "uuid-token-string",
-    "expiresIn": 3600
-  }
-  ```
-
----
-
-### 🍜 Menu
-`GET /menu` - View available items and stock levels.
-- **Response (200 OK):**
-  ```json
-  [
-    { "id": 1, "name": "Tom Yum Noodles", "price": 50, "stock": 2 },
-    { "id": 2, "name": "Fried Rice", "price": 45, "stock": 1 }
-  ]
-  ```
-
----
-
-### 🛒 Orders
-`POST /orders` - Place a new order.
-- **Headers:** `Authorization: Bearer <token>`
-- **Body (JSON):**
-  ```json
-  {
-    "itemId": 1,
-    "quantity": 1
-  }
-  ```
-- **Response (200 OK):**
-  ```json
-  {
-    "orderId": "ORD-abc123",
-    "status": "created",
-    "totalPrice": 45
-  }
-  ```
-
-`GET /orders/<orderId>` - Retrieve order details.
-- **Response (200 OK):**
-  ```json
-  {
-    "orderId": "ORD-abc123",
-    "status": "created",
-    "totalPrice": 45
-  }
-  ```
-
----
-
-## 🕵️ Your Mission: The Silent Auditor
-
-Your task is to create a comprehensive Bruno collection that validates the entire workflow.  
-
-⚠️ **The Catch:** Nephew Lek left several **logic bugs** in the system. Some endpoints might return `200 OK` even when the business logic is completely broken.
-
-**Your collection must include:**
-1.  **Auth Flow**: Automatically store the `accessToken` from login and use it for subsequent requests.
-2.  **Order Validation**: Ensure orders can only be placed with valid auth, valid items, and available stock.
-3.  **Data Integrity**: Check that the `totalPrice` calculated by the API matches your expectations.
-4.  **Edge Cases**: What happens if you order more than what's in stock? What happens if you request a non-existent order?
-
-> [!TIP]
-> **Clicking "Send" is not testing.** Your tests must contain scripts (Assertions or Javascript) that **FAIL** when the system behaves incorrectly.
-
----
-
-## 🧠 Rules of the Lab
-- ❌ **Do NOT** modify the `app.py` backend code.
-- ❌ **Do NOT** rely on manual checking.
-- ✅ **Use environment variables** for the Base URL and Tokens.
-- ✅ **Use Scripts/Assertions** for all validations.
-
----
-
-## 📦 What to Submit
-
-1.  **Push your Bruno collection folder** to your GitHub repository.
-2.  **Update your README.md** (the one in your fork) with:
-    - A summary of the bugs you discovered.
-    - How your tests detect these bugs.
-4.  **Send the GitHub link** to your instructor via Discord.
-
----
-*Good luck. Auntie Som is counting on you!* 🍜🔥
+สคริปต์จะเปรียบเทียบคำขอ สคริปต์ เงื่อนไขตรวจสอบ และตัวแปรก่อนและหลังนำกลับเข้า พร้อมเปรียบเทียบรายงานผลทดสอบที่เก็บไว้ หากเพิ่งรันเฉพาะกลุ่ม ให้รัน `npm.cmd test` ให้ครบทุกกลุ่มก่อนใช้คำสั่งตรวจสอบ JSON
