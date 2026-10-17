@@ -1,0 +1,39 @@
+meta {
+  name: Unknown item
+  type: http
+  seq: 8
+}
+
+post {
+  url: {{baseUrl}}/orders
+  body: json
+  auth: none
+}
+
+headers {
+  Accept: application/json
+  Content-Type: application/json
+  Authorization: Bearer {{accessToken}}
+}
+
+body:json {
+  {
+    "itemId": 999999,
+    "quantity": 1
+  }
+}
+
+tests {
+  test("Response is JSON", function () {
+    expect(res.getHeader("content-type")).to.include("application/json");
+  });
+
+  test("HTTP status is 404", function () {
+    expect(res.getStatus()).to.equal(404);
+  });
+
+  test("Error body describes rejection", function () {
+    expect(res.getBody()).to.have.property("error").that.is.a("string");
+    expect(res.getBody().error).to.equal("Item not found");
+  });
+}

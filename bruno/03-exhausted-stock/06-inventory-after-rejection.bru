@@ -1,0 +1,33 @@
+meta {
+  name: Inventory after rejection
+  type: http
+  seq: 6
+}
+
+get {
+  url: {{baseUrl}}/menu
+  body: none
+  auth: none
+}
+
+headers {
+  Accept: application/json
+}
+
+tests {
+  test("Response is JSON", function () {
+    expect(res.getHeader("content-type")).to.include("application/json");
+  });
+
+  test("HTTP status is 200", function () {
+    expect(res.getStatus()).to.equal(200);
+  });
+
+  test("Rejected request does not change inventory", function () {
+    expect(res.getBody()).to.deep.equal(bru.getVar('menuBefore'));
+  });
+
+  test("Inventory never becomes negative", function () {
+    res.getBody().forEach(item => expect(item.stock).to.be.at.least(0));
+  });
+}

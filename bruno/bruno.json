@@ -1,0 +1,9 @@
+{
+  "version": "1",
+  "name": "Auntie Som Lab",
+  "type": "collection",
+  "ignore": [
+    "node_modules",
+    ".git"
+  ]
+}

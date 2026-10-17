@@ -1,0 +1,45 @@
+meta {
+  name: Login
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUrl}}/auth/login
+  body: json
+  auth: none
+}
+
+headers {
+  Accept: application/json
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "username": "{{username}}",
+    "password": "{{password}}"
+  }
+}
+
+script:post-response {
+  const body = res.getBody();
+  if (res.getStatus() === 200 && typeof body.accessToken === 'string') {
+    bru.setEnvVar('accessToken', body.accessToken);
+  }
+}
+
+tests {
+  test("Response is JSON", function () {
+    expect(res.getHeader("content-type")).to.include("application/json");
+  });
+
+  test("HTTP status is 200", function () {
+    expect(res.getStatus()).to.equal(200);
+  });
+
+  test("Login exposes token and one-hour lifetime", function () {
+    expect(res.getBody().accessToken).to.be.a('string').and.not.be.empty;
+    expect(res.getBody().expiresIn).to.equal(3600);
+  });
+}

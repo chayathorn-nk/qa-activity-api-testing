@@ -1,0 +1,40 @@
+meta {
+  name: Retrieve created order
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{baseUrl}}/orders/{{orderId}}
+  body: none
+  auth: none
+}
+
+headers {
+  Accept: application/json
+}
+
+tests {
+  test("Response is JSON", function () {
+    expect(res.getHeader("content-type")).to.include("application/json");
+  });
+
+  test("HTTP status is 200", function () {
+    expect(res.getStatus()).to.equal(200);
+  });
+
+  test("Order follows creation contract", function () {
+    const body = res.getBody();
+    expect(body.orderId).to.match(/^ORD-[0-9a-f]{6}$/);
+    expect(body.status).to.equal('created');
+    expect(body.totalPrice).to.be.a('number');
+  });
+
+  test("Retrieved order matches creation response", function () {
+    expect(res.getBody()).to.deep.equal(bru.getVar('createdOrder'));
+  });
+
+  test("BUG-01 Total equals menu price times quantity", function () {
+    expect(res.getBody().totalPrice).to.equal(bru.getVar('expectedTotal'));
+  });
+}

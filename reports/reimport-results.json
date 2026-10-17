@@ -1,0 +1,1613 @@
+{
+  "requests": 45,
+  "checks": 149,
+  "passed": 128,
+  "failed": 21,
+  "scenarios": 9,
+  "python": "Python 3.14.7",
+  "node": "v22.14.0",
+  "brunoCli": "4.2.1",
+  "results": [
+    {
+      "scenario": "01-contract-and-auth",
+      "name": "Menu baseline",
+      "path": "01-contract-and-auth\\Menu baseline",
+      "status": 200,
+      "body": [
+        {
+          "id": 1,
+          "name": "Tom Yum Noodles",
+          "price": 50,
+          "stock": 2
+        },
+        {
+          "id": 2,
+          "name": "Fried Rice",
+          "price": 45,
+          "stock": 1
+        }
+      ],
+      "tests": [
+        {
+          "description": "Response is JSON",
+          "status": "pass",
+          "uid": "Nj7bLAvuE0ISkqV3UhTQL"
+        },
+        {
+          "description": "HTTP status is 200",
+          "status": "pass",
+          "uid": "NN3tmSttwnhMPWK5MLgux"
+        },
+        {
+          "description": "Menu respects item schema",
+          "status": "pass",
+          "uid": "ZaG7rxVRB0EyCHNlyBKK7"
+        }
+      ],
+      "assertions": [],
+      "error": null
+    },
+    {
+      "scenario": "01-contract-and-auth",
+      "name": "Incorrect login",
+      "path": "01-contract-and-auth\\Incorrect login",
+      "status": 401,
+      "body": {
+        "error": "Invalid login"
+      },
+      "tests": [
+        {
+          "description": "Response is JSON",
+          "status": "pass",
+          "uid": "NMDsL9SdZi_ljCarycLit"
+        },
+        {
+          "description": "HTTP status is 401",
+          "status": "pass",
+          "uid": "J4R_Y41TFSh7HHXj0o29S"
+        },
+        {
+          "description": "Error body describes rejection",
+          "status": "pass",
+          "uid": "g086v_76KfqNThmS6DTxL"
+        }
+      ],
+      "assertions": [],
+      "error": null
+    },
+    {
+      "scenario": "01-contract-and-auth",
+      "name": "Login",
+      "path": "01-contract-and-auth\\Login",
+      "status": 200,
+      "body": {
+        "accessToken": "[redacted]",
+        "expiresIn": 3600
+      },
+      "tests": [
+        {
+          "description": "Response is JSON",
+          "status": "pass",
+          "uid": "dj-Rk5OXDmTOGNII5sHST"
+        },
+        {
+          "description": "HTTP status is 200",
+          "status": "pass",
+          "uid": "RXlOHACAyxALF1LDIi_UG"
+        },
+        {
+          "description": "Login exposes token and one-hour lifetime",
+          "status": "pass",
+          "uid": "x9rtUXkpbjgh_l8eHAehg"
+        }
+      ],
+      "assertions": [],
+      "error": null
+    },
+    {
+      "scenario": "01-contract-and-auth",
+      "name": "Missing token",
+      "path": "01-contract-and-auth\\Missing token",
+      "status": 401,
+      "body": {
+        "error": "Unauthorized"
+      },
+      "tests": [
+        {
+          "description": "Response is JSON",
+          "status": "pass",
+          "uid": "8u9ZEgQ-3afTS4LwG6lhw"
+        },
+        {
+          "description": "HTTP status is 401",
+          "status": "pass",
+          "uid": "J1ToJU3kPWb5s5rWL1Mp4"
+        },
+        {
+          "description": "Error body describes rejection",
+          "status": "pass",
+          "uid": "xNMLTswZvPUV--pJa0RYp"
+        }
+      ],
+      "assertions": [],
+      "error": null
+    },
+    {
+      "scenario": "01-contract-and-auth",
+      "name": "Inventory after missing token",
+      "path": "01-contract-and-auth\\Inventory after missing token",
+      "status": 200,
+      "body": [
+        {
+          "id": 1,
+          "name": "Tom Yum Noodles",
+          "price": 50,
+          "stock": 2
+        },
+        {
+          "id": 2,
+          "name": "Fried Rice",
+          "price": 45,
+          "stock": 1
+        }
+      ],
+      "tests": [
+        {
+          "description": "Response is JSON",
+          "status": "pass",
+          "uid": "TnQi-vLwyddTaHdJUNBAF"
+        },
+        {
+          "description": "HTTP status is 200",
+          "status": "pass",
+          "uid": "kzRLXHAGVkghUPb7B0Wme"
+        },
+        {
+          "description": "Rejected request does not change inventory",
+          "status": "pass",
+          "uid": "UKgHQdksovZ7Q2sAqD-sc"
+        },
+        {
+          "description": "Inventory never becomes negative",
+          "status": "pass",
+          "uid": "lakYmZgFKMrBe7i8GE5gb"
+        }
+      ],
+      "assertions": [],
+      "error": null
+    },
+    {
+      "scenario": "01-contract-and-auth",
+      "name": "Invalid token",
+      "path": "01-contract-and-auth\\Invalid token",
+      "status": 401,
+      "body": {
+        "error": "Unauthorized"
+      },
+      "tests": [
+        {
+          "description": "Response is JSON",
+          "status": "pass",
+          "uid": "ahNtUbzUaiYyWX6wUo8rg"
+        },
+        {
+          "description": "HTTP status is 401",
+          "status": "pass",
+          "uid": "VKncVhQ-mAxzmnOaCTDBD"
+        },
+        {
+          "description": "Error body describes rejection",
+          "status": "pass",
+          "uid": "WCiQgnTPxtrtfD_C-qgM5"
+        }
+      ],
+      "assertions": [],
+      "error": null
+    },
+    {
+      "scenario": "01-contract-and-auth",
+      "name": "Inventory after invalid token",
+      "path": "01-contract-and-auth\\Inventory after invalid token",
+      "status": 200,
+      "body": [
+        {
+          "id": 1,
+          "name": "Tom Yum Noodles",
+          "price": 50,
+          "stock": 2
+        },
+        {
+          "id": 2,
+          "name": "Fried Rice",
+          "price": 45,
+          "stock": 1
+        }
+      ],
+      "tests": [
+        {
+          "description": "Response is JSON",
+          "status": "pass",
+          "uid": "5ko91pCTgqkkSNiWxN66V"
+        },
+        {
+          "description": "HTTP status is 200",
+          "status": "pass",
+          "uid": "Cmwy45VRFFyi2iQ6ed51E"
+        },
+        {
+          "description": "Rejected request does not change inventory",
+          "status": "pass",
+          "uid": "Fw-Sc-9sRTxMKqgy8ZT8n"
+        },
+        {
+          "description": "Inventory never becomes negative",
+          "status": "pass",
+          "uid": "xTWvcFsOgq8MlyTiCA4eS"
+        }
+      ],
+      "assertions": [],
+      "error": null
+    },
+    {
+      "scenario": "01-contract-and-auth",
+      "name": "Unknown item",
+      "path": "01-contract-and-auth\\Unknown item",
+      "status": 404,
+      "body": {
+        "error": "Item not found"
+      },
+      "tests": [
+        {
+          "description": "Response is JSON",
+          "status": "pass",
+          "uid": "b5jPhmOOsDPr32qFBTxAi"
+        },
+        {
+          "description": "HTTP status is 404",
+          "status": "pass",
+          "uid": "zHlwqsFaKea9bR4-Bj65N"
+        },
+        {
+          "description": "Error body describes rejection",
+          "status": "pass",
+          "uid": "rC4muITz9iIvMk_CFG4LN"
+        }
+      ],
+      "assertions": [],
+      "error": null
+    },
+    {
+      "scenario": "01-contract-and-auth",
+      "name": "Inventory after unknown item",
+      "path": "01-contract-and-auth\\Inventory after unknown item",
+      "status": 200,
+      "body": [
+        {
+          "id": 1,
+          "name": "Tom Yum Noodles",
+          "price": 50,
+          "stock": 2
+        },
+        {
+          "id": 2,
+          "name": "Fried Rice",
+          "price": 45,
+          "stock": 1
+        }
+      ],
+      "tests": [
+        {
+          "description": "Response is JSON",
+          "status": "pass",
+          "uid": "WbDYcVXFUzgf2kE-tdH0a"
+        },
+        {
+          "description": "HTTP status is 200",
+          "status": "pass",
+          "uid": "fERV5Vm_p7ZH2y6CSy7jY"
+        },
+        {
+          "description": "Rejected request does not change inventory",
+          "status": "pass",
+          "uid": "ZCaRHXfes6HcPmKD6xbfU"
+        },
+        {
+          "description": "Inventory never becomes negative",
+          "status": "pass",
+          "uid": "IZsAcGhU61fcHQBB4SvXE"
+        }
+      ],
+      "assertions": [],
+      "error": null
+    },
+    {
+      "scenario": "01-contract-and-auth",
+      "name": "Missing order",
+      "path": "01-contract-and-auth\\Missing order",
+      "status": 200,
+      "body": {
+        "error": "Order not found"
+      },
+      "tests": [
+        {
+          "description": "HTTP status is 404",
+          "status": "fail",
+          "error": "expected 200 to equal 404",
+          "uid": "b4g7VLNVgvC5EGMbI4aaI"
+        },
+        {
+          "description": "Response is JSON",
+          "status": "pass",
+          "uid": "o-YaZycBRmaRYylWuVH37"
+        },
+        {
+          "description": "Error body describes rejection",
+          "status": "pass",
+          "uid": "Ii8o-pWJHgV_8SWryqP9T"
+        }
+      ],
+      "assertions": [],
+      "error": null
+    },
+    {
+      "scenario": "02-valid-order-and-price",
+      "name": "Login",
+      "path": "02-valid-order-and-price\\Login",
+      "status": 200,
+      "body": {
+        "accessToken": "[redacted]",
+        "expiresIn": 3600
+      },
+      "tests": [
+        {
+          "description": "Response is JSON",
+          "status": "pass",
+          "uid": "2hThYfbtWEnmTCCOSBUBA"
+        },
+        {
+          "description": "HTTP status is 200",
+          "status": "pass",
+          "uid": "aCasIQKBUoAtmFw70p8HW"
+        },
+        {
+          "description": "Login exposes token and one-hour lifetime",
+          "status": "pass",
+          "uid": "wIud0VOfkwgjKEGiHXE7Z"
+        }
+      ],
+      "assertions": [],
+      "error": null
+    },
+    {
+      "scenario": "02-valid-order-and-price",
+      "name": "Menu baseline",
+      "path": "02-valid-order-and-price\\Menu baseline",
+      "status": 200,
+      "body": [
+        {
+          "id": 1,
+          "name": "Tom Yum Noodles",
+          "price": 50,
+          "stock": 2
+        },
+        {
+          "id": 2,
+          "name": "Fried Rice",
+          "price": 45,
+          "stock": 1
+        }
+      ],
+      "tests": [
+        {
+          "description": "Response is JSON",
+          "status": "pass",
+          "uid": "9Kbk83JRnmbjbmF5HCZRo"
+        },
+        {
+          "description": "HTTP status is 200",
+          "status": "pass",
+          "uid": "PgSsv5sDcEhk7krAWlWCA"
+        },
+        {
+          "description": "Menu respects item schema",
+          "status": "pass",
+          "uid": "ZyJwDmAsWcwdLZeHFaMyz"
+        }
+      ],
+      "assertions": [],
+      "error": null
+    },
+    {
+      "scenario": "02-valid-order-and-price",
+      "name": "Create valid order",
+      "path": "02-valid-order-and-price\\Create valid order",
+      "status": 200,
+      "body": {
+        "orderId": "ORD-e325d9",
+        "status": "created",
+        "totalPrice": 45
+      },
+      "tests": [
+        {
+          "description": "BUG-01 Total equals menu price times quantity",
+          "status": "fail",
+          "error": "expected 45 to equal 50",
+          "uid": "qM4Hu9Z8j_zD0TXi4h7Jn"
+        },
+        {
+          "description": "Response is JSON",
+          "status": "pass",
+          "uid": "dpsJHeBYnm2BLEUWdtq4y"
+        },
+        {
+          "description": "HTTP status is 200",
+          "status": "pass",
+          "uid": "bjInURl9UHzkcBpvNss13"
+        },
+        {
+          "description": "Order follows creation contract",
+          "status": "pass",
+          "uid": "eQmzSrYPzRf3O39AVucKc"
+        }
+      ],
+      "assertions": [],
+      "error": null
+    },
+    {
+      "scenario": "02-valid-order-and-price",
+      "name": "Retrieve created order",
+      "path": "02-valid-order-and-price\\Retrieve created order",
+      "status": 200,
+      "body": {
+        "orderId": "ORD-e325d9",
+        "status": "created",
+        "totalPrice": 45
+      },
+      "tests": [
+        {
+          "description": "BUG-01 Total equals menu price times quantity",
+          "status": "fail",
+          "error": "expected 45 to equal 50",
+          "uid": "AcoofJiC0ayx12Lv8VoOr"
+        },
+        {
+          "description": "Response is JSON",
+          "status": "pass",
+          "uid": "rfOkJLlkQClLrRaym0Kj8"
+        },
+        {
+          "description": "HTTP status is 200",
+          "status": "pass",
+          "uid": "MZBEdntxsjal4hD80Aawx"
+        },
+        {
+          "description": "Order follows creation contract",
+          "status": "pass",
+          "uid": "RFMhxyiejyln2i2P_nzZG"
+        },
+        {
+          "description": "Retrieved order matches creation response",
+          "status": "pass",
+          "uid": "2gXnLEoDN2Jyw2GSWAdOa"
+        }
+      ],
+      "assertions": [],
+      "error": null
+    },
+    {
+      "scenario": "02-valid-order-and-price",
+      "name": "Inventory after valid order",
+      "path": "02-valid-order-and-price\\Inventory after valid order",
+      "status": 200,
+      "body": [
+        {
+          "id": 1,
+          "name": "Tom Yum Noodles",
+          "price": 50,
+          "stock": 1
+        },
+        {
+          "id": 2,
+          "name": "Fried Rice",
+          "price": 45,
+          "stock": 1
+        }
+      ],
+      "tests": [
+        {
+          "description": "Response is JSON",
+          "status": "pass",
+          "uid": "i5N81gUjD9032rVfw74c3"
+        },
+        {
+          "description": "HTTP status is 200",
+          "status": "pass",
+          "uid": "V_WV0COsXepY3q6ZJzp0V"
+        },
+        {
+          "description": "Only ordered stock decreases by quantity",
+          "status": "pass",
+          "uid": "2M4pZN_cCam0oimH-lnCG"
+        },
+        {
+          "description": "Inventory never becomes negative",
+          "status": "pass",
+          "uid": "wtTW_GSqVZyza7_BERH4K"
+        }
+      ],
+      "assertions": [],
+      "error": null
+    },
+    {
+      "scenario": "03-exhausted-stock",
+      "name": "Login",
+      "path": "03-exhausted-stock\\Login",
+      "status": 200,
+      "body": {
+        "accessToken": "[redacted]",
+        "expiresIn": 3600
+      },
+      "tests": [
+        {
+          "description": "Response is JSON",
+          "status": "pass",
+          "uid": "Jrjv2r_3jpWO5-5zeC3Ck"
+        },
+        {
+          "description": "HTTP status is 200",
+          "status": "pass",
+          "uid": "iwe_Oqah-6OS9Y8osnl_O"
+        },
+        {
+          "description": "Login exposes token and one-hour lifetime",
+          "status": "pass",
+          "uid": "QyZqakrrUGbvE7a6Mwl2P"
+        }
+      ],
+      "assertions": [],
+      "error": null
+    },
+    {
+      "scenario": "03-exhausted-stock",
+      "name": "Menu baseline",
+      "path": "03-exhausted-stock\\Menu baseline",
+      "status": 200,
+      "body": [
+        {
+          "id": 1,
+          "name": "Tom Yum Noodles",
+          "price": 50,
+          "stock": 2
+        },
+        {
+          "id": 2,
+          "name": "Fried Rice",
+          "price": 45,
+          "stock": 1
+        }
+      ],
+      "tests": [
+        {
+          "description": "Response is JSON",
+          "status": "pass",
+          "uid": "OZ_bKuzjUS7TIY70ONct5"
+        },
+        {
+          "description": "HTTP status is 200",
+          "status": "pass",
+          "uid": "I854Gzh-fhaWhvMYa7eAt"
+        },
+        {
+          "description": "Menu respects item schema",
+          "status": "pass",
+          "uid": "kbCNhhNaeL-RcwxX-lywi"
+        }
+      ],
+      "assertions": [],
+      "error": null
+    },
+    {
+      "scenario": "03-exhausted-stock",
+      "name": "Buy last fried rice",
+      "path": "03-exhausted-stock\\Buy last fried rice",
+      "status": 200,
+      "body": {
+        "orderId": "ORD-6a938e",
+        "status": "created",
+        "totalPrice": 40
+      },
+      "tests": [
+        {
+          "description": "Response is JSON",
+          "status": "pass",
+          "uid": "K5w8_KmdLsJpqwoYohdy7"
+        },
+        {
+          "description": "HTTP status is 200",
+          "status": "pass",
+          "uid": "gir22Jk0QX8cpJmHF0hqU"
+        },
+        {
+          "description": "Order follows creation contract",
+          "status": "pass",
+          "uid": "bxDKJ3vk80QP42TOlVhAO"
+        }
+      ],
+      "assertions": [],
+      "error": null
+    },
+    {
+      "scenario": "03-exhausted-stock",
+      "name": "Exhausted inventory",
+      "path": "03-exhausted-stock\\Exhausted inventory",
+      "status": 200,
+      "body": [
+        {
+          "id": 1,
+          "name": "Tom Yum Noodles",
+          "price": 50,
+          "stock": 2
+        },
+        {
+          "id": 2,
+          "name": "Fried Rice",
+          "price": 45,
+          "stock": 0
+        }
+      ],
+      "tests": [
+        {
+          "description": "Response is JSON",
+          "status": "pass",
+          "uid": "m3tVBMd644uev6v2MdHO5"
+        },
+        {
+          "description": "HTTP status is 200",
+          "status": "pass",
+          "uid": "7wGzIgwBX3XkeQA3441vU"
+        },
+        {
+          "description": "Last unit is consumed",
+          "status": "pass",
+          "uid": "GiFEJMiP-23LrRcuJSnX_"
+        }
+      ],
+      "assertions": [],
+      "error": null
+    },
+    {
+      "scenario": "03-exhausted-stock",
+      "name": "Reject exhausted item",
+      "path": "03-exhausted-stock\\Reject exhausted item",
+      "status": 400,
+      "body": {
+        "error": "Out of stock"
+      },
+      "tests": [
+        {
+          "description": "Response is JSON",
+          "status": "pass",
+          "uid": "nqst97vHRvHn4VFkKYG3r"
+        },
+        {
+          "description": "HTTP status is 400",
+          "status": "pass",
+          "uid": "Axfc8TX58hJuCKn-7oDv6"
+        },
+        {
+          "description": "Error body describes rejection",
+          "status": "pass",
+          "uid": "4qr6nHk3LG45jnqH5xCBu"
+        }
+      ],
+      "assertions": [],
+      "error": null
+    },
+    {
+      "scenario": "03-exhausted-stock",
+      "name": "Inventory after rejection",
+      "path": "03-exhausted-stock\\Inventory after rejection",
+      "status": 200,
+      "body": [
+        {
+          "id": 1,
+          "name": "Tom Yum Noodles",
+          "price": 50,
+          "stock": 2
+        },
+        {
+          "id": 2,
+          "name": "Fried Rice",
+          "price": 45,
+          "stock": 0
+        }
+      ],
+      "tests": [
+        {
+          "description": "Response is JSON",
+          "status": "pass",
+          "uid": "tLAFxKjNrcwztR4e0IMS2"
+        },
+        {
+          "description": "HTTP status is 200",
+          "status": "pass",
+          "uid": "ZD0K1GQ9q8i-XmQp4jAkL"
+        },
+        {
+          "description": "Rejected request does not change inventory",
+          "status": "pass",
+          "uid": "en1IAH43URu_2i-fVU0L5"
+        },
+        {
+          "description": "Inventory never becomes negative",
+          "status": "pass",
+          "uid": "-rBGJAcUlOXbuIy0VrmWg"
+        }
+      ],
+      "assertions": [],
+      "error": null
+    },
+    {
+      "scenario": "04-overstock",
+      "name": "Login",
+      "path": "04-overstock\\Login",
+      "status": 200,
+      "body": {
+        "accessToken": "[redacted]",
+        "expiresIn": 3600
+      },
+      "tests": [
+        {
+          "description": "Response is JSON",
+          "status": "pass",
+          "uid": "HxeqcacP6fI0Jze0jQTM9"
+        },
+        {
+          "description": "HTTP status is 200",
+          "status": "pass",
+          "uid": "BNYbi0OD6pNRBRAFzmXEV"
+        },
+        {
+          "description": "Login exposes token and one-hour lifetime",
+          "status": "pass",
+          "uid": "-YiHNosTlCw3sVtTYrg6E"
+        }
+      ],
+      "assertions": [],
+      "error": null
+    },
+    {
+      "scenario": "04-overstock",
+      "name": "Menu baseline",
+      "path": "04-overstock\\Menu baseline",
+      "status": 200,
+      "body": [
+        {
+          "id": 1,
+          "name": "Tom Yum Noodles",
+          "price": 50,
+          "stock": 2
+        },
+        {
+          "id": 2,
+          "name": "Fried Rice",
+          "price": 45,
+          "stock": 1
+        }
+      ],
+      "tests": [
+        {
+          "description": "Response is JSON",
+          "status": "pass",
+          "uid": "ndui_93XjpzPFUxYb5pWe"
+        },
+        {
+          "description": "HTTP status is 200",
+          "status": "pass",
+          "uid": "JRn582ZDUvpfO-xDzHRsc"
+        },
+        {
+          "description": "Menu respects item schema",
+          "status": "pass",
+          "uid": "Ks3NuI5lBsBif2EQH4Ng8"
+        }
+      ],
+      "assertions": [],
+      "error": null
+    },
+    {
+      "scenario": "04-overstock",
+      "name": "Reject excess quantity",
+      "path": "04-overstock\\Reject excess quantity",
+      "status": 200,
+      "body": {
+        "orderId": "ORD-f93a93",
+        "status": "created",
+        "totalPrice": 145
+      },
+      "tests": [
+        {
+          "description": "HTTP status is 400",
+          "status": "fail",
+          "error": "expected 200 to equal 400",
+          "uid": "CHKBXpvVT-t_CnCXslY0C"
+        },
+        {
+          "description": "Error body describes rejection",
+          "status": "fail",
+          "error": "expected { orderId: 'ORD-f93a93', \u2026(2) } to have property 'error'",
+          "uid": "ozuoehIhi1dJrE_sj0CYh"
+        },
+        {
+          "description": "Response is JSON",
+          "status": "pass",
+          "uid": "8bkXnYkXFotNxbBZBJIAc"
+        }
+      ],
+      "assertions": [],
+      "error": null
+    },
+    {
+      "scenario": "04-overstock",
+      "name": "Inventory after rejection",
+      "path": "04-overstock\\Inventory after rejection",
+      "status": 200,
+      "body": [
+        {
+          "id": 1,
+          "name": "Tom Yum Noodles",
+          "price": 50,
+          "stock": -1
+        },
+        {
+          "id": 2,
+          "name": "Fried Rice",
+          "price": 45,
+          "stock": 1
+        }
+      ],
+      "tests": [
+        {
+          "description": "Rejected request does not change inventory",
+          "status": "fail",
+          "error": "expected [ { id: 1, \u2026(3) }, { id: 2, \u2026(3) } ] to deeply equal [ { id: 1, \u2026(3) }, { id: 2, \u2026(3) } ]",
+          "uid": "2zlY9ImHUhTY1dI6dspQw"
+        },
+        {
+          "description": "Inventory never becomes negative",
+          "status": "fail",
+          "error": "expected -1 to be at least +0",
+          "uid": "BKj6cy7eqq5FwJaqgQKqn"
+        },
+        {
+          "description": "Response is JSON",
+          "status": "pass",
+          "uid": "fESYmSTU7I9E5xp7DMt3l"
+        },
+        {
+          "description": "HTTP status is 200",
+          "status": "pass",
+          "uid": "wf5OpkpZd7Bca4KPCb82L"
+        }
+      ],
+      "assertions": [],
+      "error": null
+    },
+    {
+      "scenario": "05-zero-quantity",
+      "name": "Login",
+      "path": "05-zero-quantity\\Login",
+      "status": 200,
+      "body": {
+        "accessToken": "[redacted]",
+        "expiresIn": 3600
+      },
+      "tests": [
+        {
+          "description": "Response is JSON",
+          "status": "pass",
+          "uid": "SXcK_6ZfgEzB54rETSoxC"
+        },
+        {
+          "description": "HTTP status is 200",
+          "status": "pass",
+          "uid": "ofQF3GEYiTdp6UbPUXrkQ"
+        },
+        {
+          "description": "Login exposes token and one-hour lifetime",
+          "status": "pass",
+          "uid": "1K_Us-ozwY1eYa16ogDmn"
+        }
+      ],
+      "assertions": [],
+      "error": null
+    },
+    {
+      "scenario": "05-zero-quantity",
+      "name": "Menu baseline",
+      "path": "05-zero-quantity\\Menu baseline",
+      "status": 200,
+      "body": [
+        {
+          "id": 1,
+          "name": "Tom Yum Noodles",
+          "price": 50,
+          "stock": 2
+        },
+        {
+          "id": 2,
+          "name": "Fried Rice",
+          "price": 45,
+          "stock": 1
+        }
+      ],
+      "tests": [
+        {
+          "description": "Response is JSON",
+          "status": "pass",
+          "uid": "J5eUk80ttO9NOY6-MTfzF"
+        },
+        {
+          "description": "HTTP status is 200",
+          "status": "pass",
+          "uid": "-REY9N3eMZ9K-9CkJFziS"
+        },
+        {
+          "description": "Menu respects item schema",
+          "status": "pass",
+          "uid": "6GP2TG6EKpoRNwuhYZA7-"
+        }
+      ],
+      "assertions": [],
+      "error": null
+    },
+    {
+      "scenario": "05-zero-quantity",
+      "name": "Reject zero quantity",
+      "path": "05-zero-quantity\\Reject zero quantity",
+      "status": 200,
+      "body": {
+        "orderId": "ORD-af6982",
+        "status": "created",
+        "totalPrice": -5
+      },
+      "tests": [
+        {
+          "description": "Invalid quantity is rejected with 400 or 422",
+          "status": "fail",
+          "error": "expected 200 to be one of [ 400, 422 ]",
+          "uid": "kw3cPtP8snqu6hCzVUXdY"
+        },
+        {
+          "description": "Error body describes rejection",
+          "status": "fail",
+          "error": "expected { orderId: 'ORD-af6982', \u2026(2) } to have property 'error'",
+          "uid": "ZLAJDq3229OOvuyVuyT1q"
+        },
+        {
+          "description": "Response is JSON",
+          "status": "pass",
+          "uid": "1diw5HgbR0rTLoYHUXa6p"
+        }
+      ],
+      "assertions": [],
+      "error": null
+    },
+    {
+      "scenario": "05-zero-quantity",
+      "name": "Inventory after rejection",
+      "path": "05-zero-quantity\\Inventory after rejection",
+      "status": 200,
+      "body": [
+        {
+          "id": 1,
+          "name": "Tom Yum Noodles",
+          "price": 50,
+          "stock": 2
+        },
+        {
+          "id": 2,
+          "name": "Fried Rice",
+          "price": 45,
+          "stock": 1
+        }
+      ],
+      "tests": [
+        {
+          "description": "Response is JSON",
+          "status": "pass",
+          "uid": "b-kqHTgLUaTeB0ojTPanI"
+        },
+        {
+          "description": "HTTP status is 200",
+          "status": "pass",
+          "uid": "NqyRV_y2lI6rAyXrUQbCJ"
+        },
+        {
+          "description": "Rejected request does not change inventory",
+          "status": "pass",
+          "uid": "kGeBoYAo315tbKLLFCfcJ"
+        },
+        {
+          "description": "Inventory never becomes negative",
+          "status": "pass",
+          "uid": "YWCN_DWhLj2os8M_edZ5W"
+        }
+      ],
+      "assertions": [],
+      "error": null
+    },
+    {
+      "scenario": "06-negative-quantity",
+      "name": "Login",
+      "path": "06-negative-quantity\\Login",
+      "status": 200,
+      "body": {
+        "accessToken": "[redacted]",
+        "expiresIn": 3600
+      },
+      "tests": [
+        {
+          "description": "Response is JSON",
+          "status": "pass",
+          "uid": "IQAyJJSdKCdeW4wc0G8CS"
+        },
+        {
+          "description": "HTTP status is 200",
+          "status": "pass",
+          "uid": "1AwrFACdVah3DdN05iKqh"
+        },
+        {
+          "description": "Login exposes token and one-hour lifetime",
+          "status": "pass",
+          "uid": "vg2g_vjZHau_PhPJL3GlP"
+        }
+      ],
+      "assertions": [],
+      "error": null
+    },
+    {
+      "scenario": "06-negative-quantity",
+      "name": "Menu baseline",
+      "path": "06-negative-quantity\\Menu baseline",
+      "status": 200,
+      "body": [
+        {
+          "id": 1,
+          "name": "Tom Yum Noodles",
+          "price": 50,
+          "stock": 2
+        },
+        {
+          "id": 2,
+          "name": "Fried Rice",
+          "price": 45,
+          "stock": 1
+        }
+      ],
+      "tests": [
+        {
+          "description": "Response is JSON",
+          "status": "pass",
+          "uid": "vY6rP9qbV8BwcpEfjgHky"
+        },
+        {
+          "description": "HTTP status is 200",
+          "status": "pass",
+          "uid": "KAQH1eFRkt9i-Zb2lPBzM"
+        },
+        {
+          "description": "Menu respects item schema",
+          "status": "pass",
+          "uid": "dodUTVe0Ts3VEzhnG2voX"
+        }
+      ],
+      "assertions": [],
+      "error": null
+    },
+    {
+      "scenario": "06-negative-quantity",
+      "name": "Reject negative quantity",
+      "path": "06-negative-quantity\\Reject negative quantity",
+      "status": 200,
+      "body": {
+        "orderId": "ORD-f8591d",
+        "status": "created",
+        "totalPrice": -55
+      },
+      "tests": [
+        {
+          "description": "Invalid quantity is rejected with 400 or 422",
+          "status": "fail",
+          "error": "expected 200 to be one of [ 400, 422 ]",
+          "uid": "2M9-Sdq6PDooAKXaImo0f"
+        },
+        {
+          "description": "Error body describes rejection",
+          "status": "fail",
+          "error": "expected { orderId: 'ORD-f8591d', \u2026(2) } to have property 'error'",
+          "uid": "e19qiZar12L1JFMUyUB_T"
+        },
+        {
+          "description": "Response is JSON",
+          "status": "pass",
+          "uid": "X6KQJhhnlzg8v7VM_rO94"
+        }
+      ],
+      "assertions": [],
+      "error": null
+    },
+    {
+      "scenario": "06-negative-quantity",
+      "name": "Inventory after rejection",
+      "path": "06-negative-quantity\\Inventory after rejection",
+      "status": 200,
+      "body": [
+        {
+          "id": 1,
+          "name": "Tom Yum Noodles",
+          "price": 50,
+          "stock": 3
+        },
+        {
+          "id": 2,
+          "name": "Fried Rice",
+          "price": 45,
+          "stock": 1
+        }
+      ],
+      "tests": [
+        {
+          "description": "Rejected request does not change inventory",
+          "status": "fail",
+          "error": "expected [ { id: 1, \u2026(3) }, { id: 2, \u2026(3) } ] to deeply equal [ { id: 1, \u2026(3) }, { id: 2, \u2026(3) } ]",
+          "uid": "jW1726B4Mca3h-uYQ5tM5"
+        },
+        {
+          "description": "Response is JSON",
+          "status": "pass",
+          "uid": "y98Y6Juxd6vGR_MCB6F7i"
+        },
+        {
+          "description": "HTTP status is 200",
+          "status": "pass",
+          "uid": "PmQjL0Q7VJHKnYvYip3vJ"
+        },
+        {
+          "description": "Inventory never becomes negative",
+          "status": "pass",
+          "uid": "C8m-_RImQ9GY8J-jmgV6y"
+        }
+      ],
+      "assertions": [],
+      "error": null
+    },
+    {
+      "scenario": "07-missing-quantity",
+      "name": "Login",
+      "path": "07-missing-quantity\\Login",
+      "status": 200,
+      "body": {
+        "accessToken": "[redacted]",
+        "expiresIn": 3600
+      },
+      "tests": [
+        {
+          "description": "Response is JSON",
+          "status": "pass",
+          "uid": "1XnMxOnPV5wiuDUN8uawc"
+        },
+        {
+          "description": "HTTP status is 200",
+          "status": "pass",
+          "uid": "s3jcq9gNTaLr8FNmXOcfw"
+        },
+        {
+          "description": "Login exposes token and one-hour lifetime",
+          "status": "pass",
+          "uid": "cKS_FrVn42OxFRA3ZwpqT"
+        }
+      ],
+      "assertions": [],
+      "error": null
+    },
+    {
+      "scenario": "07-missing-quantity",
+      "name": "Menu baseline",
+      "path": "07-missing-quantity\\Menu baseline",
+      "status": 200,
+      "body": [
+        {
+          "id": 1,
+          "name": "Tom Yum Noodles",
+          "price": 50,
+          "stock": 2
+        },
+        {
+          "id": 2,
+          "name": "Fried Rice",
+          "price": 45,
+          "stock": 1
+        }
+      ],
+      "tests": [
+        {
+          "description": "Response is JSON",
+          "status": "pass",
+          "uid": "85nn9MRjQF3wJ0Qj3kTzJ"
+        },
+        {
+          "description": "HTTP status is 200",
+          "status": "pass",
+          "uid": "7l1uRH-p_Dqc3eb-JBkuN"
+        },
+        {
+          "description": "Menu respects item schema",
+          "status": "pass",
+          "uid": "ago7O2gz5DHgoZOS3-JMo"
+        }
+      ],
+      "assertions": [],
+      "error": null
+    },
+    {
+      "scenario": "07-missing-quantity",
+      "name": "Reject missing quantity",
+      "path": "07-missing-quantity\\Reject missing quantity",
+      "status": 500,
+      "body": "[HTML error response omitted; see HTTP status]",
+      "tests": [
+        {
+          "description": "Response is JSON",
+          "status": "fail",
+          "error": "expected 'text/html; charset=utf-8' to include 'application/json'",
+          "uid": "CboIj4I01eVAZgtMTxoCg"
+        },
+        {
+          "description": "Invalid quantity is rejected with 400 or 422",
+          "status": "fail",
+          "error": "expected 500 to be one of [ 400, 422 ]",
+          "uid": "vhfRU8hUtKcKb_9q2PbxL"
+        },
+        {
+          "description": "Error body describes rejection",
+          "status": "fail",
+          "error": "expected '<!doctype html>\\n<html lang=en>\\n<tit\u2026' to have property 'error'",
+          "uid": "l24XTSx1mvcFQ1MOihcm9"
+        }
+      ],
+      "assertions": [],
+      "error": null
+    },
+    {
+      "scenario": "07-missing-quantity",
+      "name": "Inventory after rejection",
+      "path": "07-missing-quantity\\Inventory after rejection",
+      "status": 200,
+      "body": [
+        {
+          "id": 1,
+          "name": "Tom Yum Noodles",
+          "price": 50,
+          "stock": 2
+        },
+        {
+          "id": 2,
+          "name": "Fried Rice",
+          "price": 45,
+          "stock": 1
+        }
+      ],
+      "tests": [
+        {
+          "description": "Response is JSON",
+          "status": "pass",
+          "uid": "YzGNviJrimUNOZ-jQR5WT"
+        },
+        {
+          "description": "HTTP status is 200",
+          "status": "pass",
+          "uid": "2ttxS-09UrksmALWuBbvD"
+        },
+        {
+          "description": "Rejected request does not change inventory",
+          "status": "pass",
+          "uid": "uowf8M67YjsuyeOuodA74"
+        },
+        {
+          "description": "Inventory never becomes negative",
+          "status": "pass",
+          "uid": "mb3apGj4HdJw0azs2vUd9"
+        }
+      ],
+      "assertions": [],
+      "error": null
+    },
+    {
+      "scenario": "08-fractional-quantity",
+      "name": "Login",
+      "path": "08-fractional-quantity\\Login",
+      "status": 200,
+      "body": {
+        "accessToken": "[redacted]",
+        "expiresIn": 3600
+      },
+      "tests": [
+        {
+          "description": "Response is JSON",
+          "status": "pass",
+          "uid": "q5ZodSA8IhUOOnLx4unLO"
+        },
+        {
+          "description": "HTTP status is 200",
+          "status": "pass",
+          "uid": "T919MBeWKcSKU0gNVlsKf"
+        },
+        {
+          "description": "Login exposes token and one-hour lifetime",
+          "status": "pass",
+          "uid": "u3ByicFQyWSakcav4IKJ2"
+        }
+      ],
+      "assertions": [],
+      "error": null
+    },
+    {
+      "scenario": "08-fractional-quantity",
+      "name": "Menu baseline",
+      "path": "08-fractional-quantity\\Menu baseline",
+      "status": 200,
+      "body": [
+        {
+          "id": 1,
+          "name": "Tom Yum Noodles",
+          "price": 50,
+          "stock": 2
+        },
+        {
+          "id": 2,
+          "name": "Fried Rice",
+          "price": 45,
+          "stock": 1
+        }
+      ],
+      "tests": [
+        {
+          "description": "Response is JSON",
+          "status": "pass",
+          "uid": "kxvfvMSmvSJ-lgUmK_h4_"
+        },
+        {
+          "description": "HTTP status is 200",
+          "status": "pass",
+          "uid": "-d-ZiERyaNdroaJrUKUBm"
+        },
+        {
+          "description": "Menu respects item schema",
+          "status": "pass",
+          "uid": "_So8t2axvU9Fw2JCU4aIH"
+        }
+      ],
+      "assertions": [],
+      "error": null
+    },
+    {
+      "scenario": "08-fractional-quantity",
+      "name": "Reject fractional quantity",
+      "path": "08-fractional-quantity\\Reject fractional quantity",
+      "status": 200,
+      "body": {
+        "orderId": "ORD-00ebeb",
+        "status": "created",
+        "totalPrice": 70
+      },
+      "tests": [
+        {
+          "description": "Invalid quantity is rejected with 400 or 422",
+          "status": "fail",
+          "error": "expected 200 to be one of [ 400, 422 ]",
+          "uid": "tI0f7tW8LWhx1qsR46FNP"
+        },
+        {
+          "description": "Error body describes rejection",
+          "status": "fail",
+          "error": "expected { orderId: 'ORD-00ebeb', \u2026(2) } to have property 'error'",
+          "uid": "yJkKdJohwpyGNMhyjHmk3"
+        },
+        {
+          "description": "Response is JSON",
+          "status": "pass",
+          "uid": "hUvFRSHdy4Wdaolo3KNRE"
+        }
+      ],
+      "assertions": [],
+      "error": null
+    },
+    {
+      "scenario": "08-fractional-quantity",
+      "name": "Inventory after rejection",
+      "path": "08-fractional-quantity\\Inventory after rejection",
+      "status": 200,
+      "body": [
+        {
+          "id": 1,
+          "name": "Tom Yum Noodles",
+          "price": 50,
+          "stock": 0.5
+        },
+        {
+          "id": 2,
+          "name": "Fried Rice",
+          "price": 45,
+          "stock": 1
+        }
+      ],
+      "tests": [
+        {
+          "description": "Rejected request does not change inventory",
+          "status": "fail",
+          "error": "expected [ { id: 1, \u2026(3) }, { id: 2, \u2026(3) } ] to deeply equal [ { id: 1, \u2026(3) }, { id: 2, \u2026(3) } ]",
+          "uid": "QOH3_VMlnvQEPMLSAhecz"
+        },
+        {
+          "description": "Response is JSON",
+          "status": "pass",
+          "uid": "TAPv84hhtYQsxtSX0U6ai"
+        },
+        {
+          "description": "HTTP status is 200",
+          "status": "pass",
+          "uid": "awttnBIOuxWalzWhHVciI"
+        },
+        {
+          "description": "Inventory never becomes negative",
+          "status": "pass",
+          "uid": "jF5LwSng4etiLX70ZFZ8w"
+        }
+      ],
+      "assertions": [],
+      "error": null
+    },
+    {
+      "scenario": "09-string-quantity",
+      "name": "Login",
+      "path": "09-string-quantity\\Login",
+      "status": 200,
+      "body": {
+        "accessToken": "[redacted]",
+        "expiresIn": 3600
+      },
+      "tests": [
+        {
+          "description": "Response is JSON",
+          "status": "pass",
+          "uid": "CKfrn7rB-RPAudyybN_HH"
+        },
+        {
+          "description": "HTTP status is 200",
+          "status": "pass",
+          "uid": "jHPtAHlvi7ydcnYjpSrUr"
+        },
+        {
+          "description": "Login exposes token and one-hour lifetime",
+          "status": "pass",
+          "uid": "5JJObMrdS62PdhUDJZGVI"
+        }
+      ],
+      "assertions": [],
+      "error": null
+    },
+    {
+      "scenario": "09-string-quantity",
+      "name": "Menu baseline",
+      "path": "09-string-quantity\\Menu baseline",
+      "status": 200,
+      "body": [
+        {
+          "id": 1,
+          "name": "Tom Yum Noodles",
+          "price": 50,
+          "stock": 2
+        },
+        {
+          "id": 2,
+          "name": "Fried Rice",
+          "price": 45,
+          "stock": 1
+        }
+      ],
+      "tests": [
+        {
+          "description": "Response is JSON",
+          "status": "pass",
+          "uid": "mgXuP0H2fn3l2Kfkiag_7"
+        },
+        {
+          "description": "HTTP status is 200",
+          "status": "pass",
+          "uid": "nMIkB7J5z_W4fC8vdIEsc"
+        },
+        {
+          "description": "Menu respects item schema",
+          "status": "pass",
+          "uid": "M5XnTcRiRn3EMtFxlwhg_"
+        }
+      ],
+      "assertions": [],
+      "error": null
+    },
+    {
+      "scenario": "09-string-quantity",
+      "name": "Reject string quantity",
+      "path": "09-string-quantity\\Reject string quantity",
+      "status": 500,
+      "body": "[HTML error response omitted; see HTTP status]",
+      "tests": [
+        {
+          "description": "Response is JSON",
+          "status": "fail",
+          "error": "expected 'text/html; charset=utf-8' to include 'application/json'",
+          "uid": "J8wIc3LbGS59joOFSgKj-"
+        },
+        {
+          "description": "Invalid quantity is rejected with 400 or 422",
+          "status": "fail",
+          "error": "expected 500 to be one of [ 400, 422 ]",
+          "uid": "AmKVs2-3iptbbAvsirIV0"
+        },
+        {
+          "description": "Error body describes rejection",
+          "status": "fail",
+          "error": "expected '<!doctype html>\\n<html lang=en>\\n<tit\u2026' to have property 'error'",
+          "uid": "g4MiSsXv3EsyuXGpldy5y"
+        }
+      ],
+      "assertions": [],
+      "error": null
+    },
+    {
+      "scenario": "09-string-quantity",
+      "name": "Inventory after rejection",
+      "path": "09-string-quantity\\Inventory after rejection",
+      "status": 200,
+      "body": [
+        {
+          "id": 1,
+          "name": "Tom Yum Noodles",
+          "price": 50,
+          "stock": 2
+        },
+        {
+          "id": 2,
+          "name": "Fried Rice",
+          "price": 45,
+          "stock": 1
+        }
+      ],
+      "tests": [
+        {
+          "description": "Response is JSON",
+          "status": "pass",
+          "uid": "psxnjKpIandDN1LHHZdyH"
+        },
+        {
+          "description": "HTTP status is 200",
+          "status": "pass",
+          "uid": "SAlQKWMF6PW1WtdMd_mkp"
+        },
+        {
+          "description": "Rejected request does not change inventory",
+          "status": "pass",
+          "uid": "JjUgR32PCRhhqP8RHVRil"
+        },
+        {
+          "description": "Inventory never becomes negative",
+          "status": "pass",
+          "uid": "EZXkpkSKcqh5nYSLgOcQ3"
+        }
+      ],
+      "assertions": [],
+      "error": null
+    }
+  ]
+}

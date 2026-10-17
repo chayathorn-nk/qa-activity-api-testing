@@ -1,0 +1,1900 @@
+{
+  "version": "1",
+  "name": "Auntie Som Lab",
+  "items": [
+    {
+      "name": "01-contract-and-auth",
+      "type": "folder",
+      "items": [
+        {
+          "type": "http-request",
+          "name": "Menu baseline",
+          "seq": 1,
+          "settings": {},
+          "app": null,
+          "tags": [],
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/menu",
+            "headers": [
+              {
+                "name": "Accept",
+                "value": "application/json",
+                "enabled": true,
+                "uid": "456446046665fc5581b1f"
+              }
+            ],
+            "auth": {
+              "mode": "none"
+            },
+            "body": {
+              "mode": "none"
+            },
+            "script": {
+              "res": "const items = res.getBody();\nbru.setVar('menuBefore', items);\nbru.setVar('expectedTotal', items.find(item => item.id === 1).price);"
+            },
+            "vars": {},
+            "assertions": [],
+            "tests": "test(\"Response is JSON\", function () {\n  expect(res.getHeader(\"content-type\")).to.include(\"application/json\");\n});\n\ntest(\"HTTP status is 200\", function () {\n  expect(res.getStatus()).to.equal(200);\n});\n\ntest(\"Menu respects item schema\", function () {\n  const items = res.getBody();\n  expect(items).to.be.an('array').with.lengthOf(2);\n  expect(items.map(item => item.id)).to.have.members([1, 2]);\n  items.forEach(item => {\n    expect(item.name).to.be.a('string').and.not.be.empty;\n    expect(item.price).to.be.a('number').and.above(0);\n    expect(item.stock).to.be.a('number').and.at.least(0);\n    expect(Number.isInteger(item.stock)).to.equal(true);\n  });\n});",
+            "docs": "",
+            "params": []
+          },
+          "examples": [],
+          "uid": "1f3f09ba7b07fd5bc89d2"
+        },
+        {
+          "type": "http-request",
+          "name": "Incorrect login",
+          "seq": 2,
+          "settings": {},
+          "app": null,
+          "tags": [],
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/auth/login",
+            "headers": [
+              {
+                "name": "Accept",
+                "value": "application/json",
+                "enabled": true,
+                "uid": "ee253e679459ae0c1a3a0"
+              },
+              {
+                "name": "Content-Type",
+                "value": "application/json",
+                "enabled": true,
+                "uid": "7000202f75df38e8663d9"
+              }
+            ],
+            "auth": {
+              "mode": "none"
+            },
+            "body": {
+              "json": "{\n  \"username\": \"{{username}}\",\n  \"password\": \"wrong-password\"\n}",
+              "mode": "json"
+            },
+            "script": {},
+            "vars": {},
+            "assertions": [],
+            "tests": "test(\"Response is JSON\", function () {\n  expect(res.getHeader(\"content-type\")).to.include(\"application/json\");\n});\n\ntest(\"HTTP status is 401\", function () {\n  expect(res.getStatus()).to.equal(401);\n});\n\ntest(\"Error body describes rejection\", function () {\n  expect(res.getBody()).to.have.property(\"error\").that.is.a(\"string\");\n  expect(res.getBody().error).to.equal(\"Invalid login\");\n});",
+            "docs": "",
+            "params": []
+          },
+          "examples": [],
+          "uid": "fa48d3d545e19b7b3909d"
+        },
+        {
+          "type": "http-request",
+          "name": "Login",
+          "seq": 3,
+          "settings": {},
+          "app": null,
+          "tags": [],
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/auth/login",
+            "headers": [
+              {
+                "name": "Accept",
+                "value": "application/json",
+                "enabled": true,
+                "uid": "082dd38c840c4bceea369"
+              },
+              {
+                "name": "Content-Type",
+                "value": "application/json",
+                "enabled": true,
+                "uid": "7ff11298f38e6fcfeb989"
+              }
+            ],
+            "auth": {
+              "mode": "none"
+            },
+            "body": {
+              "json": "{\n  \"username\": \"{{username}}\",\n  \"password\": \"{{password}}\"\n}",
+              "mode": "json"
+            },
+            "script": {
+              "res": "const body = res.getBody();\nif (res.getStatus() === 200 && typeof body.accessToken === 'string') {\n  bru.setEnvVar('accessToken', body.accessToken);\n}"
+            },
+            "vars": {},
+            "assertions": [],
+            "tests": "test(\"Response is JSON\", function () {\n  expect(res.getHeader(\"content-type\")).to.include(\"application/json\");\n});\n\ntest(\"HTTP status is 200\", function () {\n  expect(res.getStatus()).to.equal(200);\n});\n\ntest(\"Login exposes token and one-hour lifetime\", function () {\n  expect(res.getBody().accessToken).to.be.a('string').and.not.be.empty;\n  expect(res.getBody().expiresIn).to.equal(3600);\n});",
+            "docs": "",
+            "params": []
+          },
+          "examples": [],
+          "uid": "dcf693f46cf72fb358a81"
+        },
+        {
+          "type": "http-request",
+          "name": "Missing token",
+          "seq": 4,
+          "settings": {},
+          "app": null,
+          "tags": [],
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/orders",
+            "headers": [
+              {
+                "name": "Accept",
+                "value": "application/json",
+                "enabled": true,
+                "uid": "ebd0db65dc18bcdc55c91"
+              },
+              {
+                "name": "Content-Type",
+                "value": "application/json",
+                "enabled": true,
+                "uid": "c70b29fc6ca2f7268aa5e"
+              }
+            ],
+            "auth": {
+              "mode": "none"
+            },
+            "body": {
+              "json": "{\n  \"itemId\": 1,\n  \"quantity\": 1\n}",
+              "mode": "json"
+            },
+            "script": {},
+            "vars": {},
+            "assertions": [],
+            "tests": "test(\"Response is JSON\", function () {\n  expect(res.getHeader(\"content-type\")).to.include(\"application/json\");\n});\n\ntest(\"HTTP status is 401\", function () {\n  expect(res.getStatus()).to.equal(401);\n});\n\ntest(\"Error body describes rejection\", function () {\n  expect(res.getBody()).to.have.property(\"error\").that.is.a(\"string\");\n  expect(res.getBody().error).to.equal(\"Unauthorized\");\n});",
+            "docs": "",
+            "params": []
+          },
+          "examples": [],
+          "uid": "5f22a42e25d9963c1f895"
+        },
+        {
+          "type": "http-request",
+          "name": "Inventory after missing token",
+          "seq": 5,
+          "settings": {},
+          "app": null,
+          "tags": [],
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/menu",
+            "headers": [
+              {
+                "name": "Accept",
+                "value": "application/json",
+                "enabled": true,
+                "uid": "f6d01fed2ee967244caf6"
+              }
+            ],
+            "auth": {
+              "mode": "none"
+            },
+            "body": {
+              "mode": "none"
+            },
+            "script": {},
+            "vars": {},
+            "assertions": [],
+            "tests": "test(\"Response is JSON\", function () {\n  expect(res.getHeader(\"content-type\")).to.include(\"application/json\");\n});\n\ntest(\"HTTP status is 200\", function () {\n  expect(res.getStatus()).to.equal(200);\n});\n\ntest(\"Rejected request does not change inventory\", function () {\n  expect(res.getBody()).to.deep.equal(bru.getVar('menuBefore'));\n});\n\ntest(\"Inventory never becomes negative\", function () {\n  res.getBody().forEach(item => expect(item.stock).to.be.at.least(0));\n});",
+            "docs": "",
+            "params": []
+          },
+          "examples": [],
+          "uid": "dca55f981e295f629592e"
+        },
+        {
+          "type": "http-request",
+          "name": "Invalid token",
+          "seq": 6,
+          "settings": {},
+          "app": null,
+          "tags": [],
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/orders",
+            "headers": [
+              {
+                "name": "Accept",
+                "value": "application/json",
+                "enabled": true,
+                "uid": "1f3ae383dee4e12484a74"
+              },
+              {
+                "name": "Content-Type",
+                "value": "application/json",
+                "enabled": true,
+                "uid": "4286c4c0f1ca50ecda4fa"
+              },
+              {
+                "name": "Authorization",
+                "value": "Bearer deliberately-invalid-token",
+                "enabled": true,
+                "uid": "c081b203a34c408df99b3"
+              }
+            ],
+            "auth": {
+              "mode": "none"
+            },
+            "body": {
+              "json": "{\n  \"itemId\": 1,\n  \"quantity\": 1\n}",
+              "mode": "json"
+            },
+            "script": {},
+            "vars": {},
+            "assertions": [],
+            "tests": "test(\"Response is JSON\", function () {\n  expect(res.getHeader(\"content-type\")).to.include(\"application/json\");\n});\n\ntest(\"HTTP status is 401\", function () {\n  expect(res.getStatus()).to.equal(401);\n});\n\ntest(\"Error body describes rejection\", function () {\n  expect(res.getBody()).to.have.property(\"error\").that.is.a(\"string\");\n  expect(res.getBody().error).to.equal(\"Unauthorized\");\n});",
+            "docs": "",
+            "params": []
+          },
+          "examples": [],
+          "uid": "a0a1e8e39f6412f35f995"
+        },
+        {
+          "type": "http-request",
+          "name": "Inventory after invalid token",
+          "seq": 7,
+          "settings": {},
+          "app": null,
+          "tags": [],
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/menu",
+            "headers": [
+              {
+                "name": "Accept",
+                "value": "application/json",
+                "enabled": true,
+                "uid": "d7c08213823a110c01185"
+              }
+            ],
+            "auth": {
+              "mode": "none"
+            },
+            "body": {
+              "mode": "none"
+            },
+            "script": {},
+            "vars": {},
+            "assertions": [],
+            "tests": "test(\"Response is JSON\", function () {\n  expect(res.getHeader(\"content-type\")).to.include(\"application/json\");\n});\n\ntest(\"HTTP status is 200\", function () {\n  expect(res.getStatus()).to.equal(200);\n});\n\ntest(\"Rejected request does not change inventory\", function () {\n  expect(res.getBody()).to.deep.equal(bru.getVar('menuBefore'));\n});\n\ntest(\"Inventory never becomes negative\", function () {\n  res.getBody().forEach(item => expect(item.stock).to.be.at.least(0));\n});",
+            "docs": "",
+            "params": []
+          },
+          "examples": [],
+          "uid": "06c69f6e9e1ff7f5a5f42"
+        },
+        {
+          "type": "http-request",
+          "name": "Unknown item",
+          "seq": 8,
+          "settings": {},
+          "app": null,
+          "tags": [],
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/orders",
+            "headers": [
+              {
+                "name": "Accept",
+                "value": "application/json",
+                "enabled": true,
+                "uid": "891cc8859bc5a87f2bc9e"
+              },
+              {
+                "name": "Content-Type",
+                "value": "application/json",
+                "enabled": true,
+                "uid": "d43030fcf7aa046e4b225"
+              },
+              {
+                "name": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "enabled": true,
+                "uid": "10ebc84bb7d4e1158aea8"
+              }
+            ],
+            "auth": {
+              "mode": "none"
+            },
+            "body": {
+              "json": "{\n  \"itemId\": 999999,\n  \"quantity\": 1\n}",
+              "mode": "json"
+            },
+            "script": {},
+            "vars": {},
+            "assertions": [],
+            "tests": "test(\"Response is JSON\", function () {\n  expect(res.getHeader(\"content-type\")).to.include(\"application/json\");\n});\n\ntest(\"HTTP status is 404\", function () {\n  expect(res.getStatus()).to.equal(404);\n});\n\ntest(\"Error body describes rejection\", function () {\n  expect(res.getBody()).to.have.property(\"error\").that.is.a(\"string\");\n  expect(res.getBody().error).to.equal(\"Item not found\");\n});",
+            "docs": "",
+            "params": []
+          },
+          "examples": [],
+          "uid": "0b9175228b0d8896090d0"
+        },
+        {
+          "type": "http-request",
+          "name": "Inventory after unknown item",
+          "seq": 9,
+          "settings": {},
+          "app": null,
+          "tags": [],
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/menu",
+            "headers": [
+              {
+                "name": "Accept",
+                "value": "application/json",
+                "enabled": true,
+                "uid": "7c33915cbf2f60652cb89"
+              }
+            ],
+            "auth": {
+              "mode": "none"
+            },
+            "body": {
+              "mode": "none"
+            },
+            "script": {},
+            "vars": {},
+            "assertions": [],
+            "tests": "test(\"Response is JSON\", function () {\n  expect(res.getHeader(\"content-type\")).to.include(\"application/json\");\n});\n\ntest(\"HTTP status is 200\", function () {\n  expect(res.getStatus()).to.equal(200);\n});\n\ntest(\"Rejected request does not change inventory\", function () {\n  expect(res.getBody()).to.deep.equal(bru.getVar('menuBefore'));\n});\n\ntest(\"Inventory never becomes negative\", function () {\n  res.getBody().forEach(item => expect(item.stock).to.be.at.least(0));\n});",
+            "docs": "",
+            "params": []
+          },
+          "examples": [],
+          "uid": "27753edc8a846d2b2c953"
+        },
+        {
+          "type": "http-request",
+          "name": "Missing order",
+          "seq": 10,
+          "settings": {},
+          "app": null,
+          "tags": [],
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/orders/ORD-does-not-exist",
+            "headers": [
+              {
+                "name": "Accept",
+                "value": "application/json",
+                "enabled": true,
+                "uid": "393e8338bdd5aa04eca0f"
+              }
+            ],
+            "auth": {
+              "mode": "none"
+            },
+            "body": {
+              "mode": "none"
+            },
+            "script": {},
+            "vars": {},
+            "assertions": [],
+            "tests": "test(\"Response is JSON\", function () {\n  expect(res.getHeader(\"content-type\")).to.include(\"application/json\");\n});\n\ntest(\"HTTP status is 404\", function () {\n  expect(res.getStatus()).to.equal(404);\n});\n\ntest(\"Error body describes rejection\", function () {\n  expect(res.getBody()).to.have.property(\"error\").that.is.a(\"string\");\n  expect(res.getBody().error).to.equal(\"Order not found\");\n});",
+            "docs": "",
+            "params": []
+          },
+          "examples": [],
+          "uid": "59f2b739c74f4bf540de3"
+        }
+      ],
+      "uid": "1f10d959d26b5f83cd637"
+    },
+    {
+      "name": "02-valid-order-and-price",
+      "type": "folder",
+      "items": [
+        {
+          "type": "http-request",
+          "name": "Login",
+          "seq": 1,
+          "settings": {},
+          "app": null,
+          "tags": [],
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/auth/login",
+            "headers": [
+              {
+                "name": "Accept",
+                "value": "application/json",
+                "enabled": true,
+                "uid": "71c8d71dead204d0cd0fc"
+              },
+              {
+                "name": "Content-Type",
+                "value": "application/json",
+                "enabled": true,
+                "uid": "70d7deb782058957fd14a"
+              }
+            ],
+            "auth": {
+              "mode": "none"
+            },
+            "body": {
+              "json": "{\n  \"username\": \"{{username}}\",\n  \"password\": \"{{password}}\"\n}",
+              "mode": "json"
+            },
+            "script": {
+              "res": "const body = res.getBody();\nif (res.getStatus() === 200 && typeof body.accessToken === 'string') {\n  bru.setEnvVar('accessToken', body.accessToken);\n}"
+            },
+            "vars": {},
+            "assertions": [],
+            "tests": "test(\"Response is JSON\", function () {\n  expect(res.getHeader(\"content-type\")).to.include(\"application/json\");\n});\n\ntest(\"HTTP status is 200\", function () {\n  expect(res.getStatus()).to.equal(200);\n});\n\ntest(\"Login exposes token and one-hour lifetime\", function () {\n  expect(res.getBody().accessToken).to.be.a('string').and.not.be.empty;\n  expect(res.getBody().expiresIn).to.equal(3600);\n});",
+            "docs": "",
+            "params": []
+          },
+          "examples": [],
+          "uid": "3e47ace8b692906057d5f"
+        },
+        {
+          "type": "http-request",
+          "name": "Menu baseline",
+          "seq": 2,
+          "settings": {},
+          "app": null,
+          "tags": [],
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/menu",
+            "headers": [
+              {
+                "name": "Accept",
+                "value": "application/json",
+                "enabled": true,
+                "uid": "7d545f112fd4ead9e17d9"
+              }
+            ],
+            "auth": {
+              "mode": "none"
+            },
+            "body": {
+              "mode": "none"
+            },
+            "script": {
+              "res": "const items = res.getBody();\nbru.setVar('menuBefore', items);\nbru.setVar('expectedTotal', items.find(item => item.id === 1).price);"
+            },
+            "vars": {},
+            "assertions": [],
+            "tests": "test(\"Response is JSON\", function () {\n  expect(res.getHeader(\"content-type\")).to.include(\"application/json\");\n});\n\ntest(\"HTTP status is 200\", function () {\n  expect(res.getStatus()).to.equal(200);\n});\n\ntest(\"Menu respects item schema\", function () {\n  const items = res.getBody();\n  expect(items).to.be.an('array').with.lengthOf(2);\n  expect(items.map(item => item.id)).to.have.members([1, 2]);\n  items.forEach(item => {\n    expect(item.name).to.be.a('string').and.not.be.empty;\n    expect(item.price).to.be.a('number').and.above(0);\n    expect(item.stock).to.be.a('number').and.at.least(0);\n    expect(Number.isInteger(item.stock)).to.equal(true);\n  });\n});",
+            "docs": "",
+            "params": []
+          },
+          "examples": [],
+          "uid": "e6887f2843083c101b81a"
+        },
+        {
+          "type": "http-request",
+          "name": "Create valid order",
+          "seq": 3,
+          "settings": {},
+          "app": null,
+          "tags": [],
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/orders",
+            "headers": [
+              {
+                "name": "Accept",
+                "value": "application/json",
+                "enabled": true,
+                "uid": "eba573cb0584912378951"
+              },
+              {
+                "name": "Content-Type",
+                "value": "application/json",
+                "enabled": true,
+                "uid": "8cde4a08488b243ade1c2"
+              },
+              {
+                "name": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "enabled": true,
+                "uid": "a310b7e8969b0a8760b65"
+              }
+            ],
+            "auth": {
+              "mode": "none"
+            },
+            "body": {
+              "json": "{\n  \"itemId\": 1,\n  \"quantity\": 1\n}",
+              "mode": "json"
+            },
+            "script": {
+              "res": "const body = res.getBody();\nif (typeof body.orderId === 'string') {\n  bru.setVar('orderId', body.orderId);\n  bru.setVar('createdOrder', body);\n}"
+            },
+            "vars": {},
+            "assertions": [],
+            "tests": "test(\"Response is JSON\", function () {\n  expect(res.getHeader(\"content-type\")).to.include(\"application/json\");\n});\n\ntest(\"HTTP status is 200\", function () {\n  expect(res.getStatus()).to.equal(200);\n});\n\ntest(\"Order follows creation contract\", function () {\n  const body = res.getBody();\n  expect(body.orderId).to.match(/^ORD-[0-9a-f]{6}$/);\n  expect(body.status).to.equal('created');\n  expect(body.totalPrice).to.be.a('number');\n});\n\ntest(\"BUG-01 Total equals menu price times quantity\", function () {\n  expect(res.getBody().totalPrice).to.equal(bru.getVar('expectedTotal'));\n});",
+            "docs": "",
+            "params": []
+          },
+          "examples": [],
+          "uid": "1f815230f0a62da56c188"
+        },
+        {
+          "type": "http-request",
+          "name": "Retrieve created order",
+          "seq": 4,
+          "settings": {},
+          "app": null,
+          "tags": [],
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/orders/{{orderId}}",
+            "headers": [
+              {
+                "name": "Accept",
+                "value": "application/json",
+                "enabled": true,
+                "uid": "24ff990e0adcbe5d2d747"
+              }
+            ],
+            "auth": {
+              "mode": "none"
+            },
+            "body": {
+              "mode": "none"
+            },
+            "script": {},
+            "vars": {},
+            "assertions": [],
+            "tests": "test(\"Response is JSON\", function () {\n  expect(res.getHeader(\"content-type\")).to.include(\"application/json\");\n});\n\ntest(\"HTTP status is 200\", function () {\n  expect(res.getStatus()).to.equal(200);\n});\n\ntest(\"Order follows creation contract\", function () {\n  const body = res.getBody();\n  expect(body.orderId).to.match(/^ORD-[0-9a-f]{6}$/);\n  expect(body.status).to.equal('created');\n  expect(body.totalPrice).to.be.a('number');\n});\n\ntest(\"Retrieved order matches creation response\", function () {\n  expect(res.getBody()).to.deep.equal(bru.getVar('createdOrder'));\n});\n\ntest(\"BUG-01 Total equals menu price times quantity\", function () {\n  expect(res.getBody().totalPrice).to.equal(bru.getVar('expectedTotal'));\n});",
+            "docs": "",
+            "params": []
+          },
+          "examples": [],
+          "uid": "1bff08e1b2fcd70b2ec3d"
+        },
+        {
+          "type": "http-request",
+          "name": "Inventory after valid order",
+          "seq": 5,
+          "settings": {},
+          "app": null,
+          "tags": [],
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/menu",
+            "headers": [
+              {
+                "name": "Accept",
+                "value": "application/json",
+                "enabled": true,
+                "uid": "22f7b2979feb4582034f6"
+              }
+            ],
+            "auth": {
+              "mode": "none"
+            },
+            "body": {
+              "mode": "none"
+            },
+            "script": {},
+            "vars": {},
+            "assertions": [],
+            "tests": "test(\"Response is JSON\", function () {\n  expect(res.getHeader(\"content-type\")).to.include(\"application/json\");\n});\n\ntest(\"HTTP status is 200\", function () {\n  expect(res.getStatus()).to.equal(200);\n});\n\ntest(\"Only ordered stock decreases by quantity\", function () {\n  const expected = JSON.parse(JSON.stringify(bru.getVar('menuBefore')));\n  expected.find(item => item.id === 1).stock -= 1;\n  expect(res.getBody()).to.deep.equal(expected);\n});\n\ntest(\"Inventory never becomes negative\", function () {\n  res.getBody().forEach(item => expect(item.stock).to.be.at.least(0));\n});",
+            "docs": "",
+            "params": []
+          },
+          "examples": [],
+          "uid": "569522465f2b253b75a62"
+        }
+      ],
+      "uid": "754c96a0e21322e6a8e78"
+    },
+    {
+      "name": "03-exhausted-stock",
+      "type": "folder",
+      "items": [
+        {
+          "type": "http-request",
+          "name": "Login",
+          "seq": 1,
+          "settings": {},
+          "app": null,
+          "tags": [],
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/auth/login",
+            "headers": [
+              {
+                "name": "Accept",
+                "value": "application/json",
+                "enabled": true,
+                "uid": "beaf6f3986de1af2fdfde"
+              },
+              {
+                "name": "Content-Type",
+                "value": "application/json",
+                "enabled": true,
+                "uid": "2ab3cb10d601cc4eec9e4"
+              }
+            ],
+            "auth": {
+              "mode": "none"
+            },
+            "body": {
+              "json": "{\n  \"username\": \"{{username}}\",\n  \"password\": \"{{password}}\"\n}",
+              "mode": "json"
+            },
+            "script": {
+              "res": "const body = res.getBody();\nif (res.getStatus() === 200 && typeof body.accessToken === 'string') {\n  bru.setEnvVar('accessToken', body.accessToken);\n}"
+            },
+            "vars": {},
+            "assertions": [],
+            "tests": "test(\"Response is JSON\", function () {\n  expect(res.getHeader(\"content-type\")).to.include(\"application/json\");\n});\n\ntest(\"HTTP status is 200\", function () {\n  expect(res.getStatus()).to.equal(200);\n});\n\ntest(\"Login exposes token and one-hour lifetime\", function () {\n  expect(res.getBody().accessToken).to.be.a('string').and.not.be.empty;\n  expect(res.getBody().expiresIn).to.equal(3600);\n});",
+            "docs": "",
+            "params": []
+          },
+          "examples": [],
+          "uid": "71a046585b0c2cef946c2"
+        },
+        {
+          "type": "http-request",
+          "name": "Menu baseline",
+          "seq": 2,
+          "settings": {},
+          "app": null,
+          "tags": [],
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/menu",
+            "headers": [
+              {
+                "name": "Accept",
+                "value": "application/json",
+                "enabled": true,
+                "uid": "1a68711011a564bd1b7c0"
+              }
+            ],
+            "auth": {
+              "mode": "none"
+            },
+            "body": {
+              "mode": "none"
+            },
+            "script": {
+              "res": "const items = res.getBody();\nbru.setVar('menuBefore', items);\nbru.setVar('expectedTotal', items.find(item => item.id === 1).price);"
+            },
+            "vars": {},
+            "assertions": [],
+            "tests": "test(\"Response is JSON\", function () {\n  expect(res.getHeader(\"content-type\")).to.include(\"application/json\");\n});\n\ntest(\"HTTP status is 200\", function () {\n  expect(res.getStatus()).to.equal(200);\n});\n\ntest(\"Menu respects item schema\", function () {\n  const items = res.getBody();\n  expect(items).to.be.an('array').with.lengthOf(2);\n  expect(items.map(item => item.id)).to.have.members([1, 2]);\n  items.forEach(item => {\n    expect(item.name).to.be.a('string').and.not.be.empty;\n    expect(item.price).to.be.a('number').and.above(0);\n    expect(item.stock).to.be.a('number').and.at.least(0);\n    expect(Number.isInteger(item.stock)).to.equal(true);\n  });\n});",
+            "docs": "",
+            "params": []
+          },
+          "examples": [],
+          "uid": "3268767b99dbe891073e1"
+        },
+        {
+          "type": "http-request",
+          "name": "Buy last fried rice",
+          "seq": 3,
+          "settings": {},
+          "app": null,
+          "tags": [],
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/orders",
+            "headers": [
+              {
+                "name": "Accept",
+                "value": "application/json",
+                "enabled": true,
+                "uid": "cb2c25e6b7bfd56ef027a"
+              },
+              {
+                "name": "Content-Type",
+                "value": "application/json",
+                "enabled": true,
+                "uid": "efac997b2ec35c4b1f010"
+              },
+              {
+                "name": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "enabled": true,
+                "uid": "71a5a94fc9d83acd38a39"
+              }
+            ],
+            "auth": {
+              "mode": "none"
+            },
+            "body": {
+              "json": "{\n  \"itemId\": 2,\n  \"quantity\": 1\n}",
+              "mode": "json"
+            },
+            "script": {},
+            "vars": {},
+            "assertions": [],
+            "tests": "test(\"Response is JSON\", function () {\n  expect(res.getHeader(\"content-type\")).to.include(\"application/json\");\n});\n\ntest(\"HTTP status is 200\", function () {\n  expect(res.getStatus()).to.equal(200);\n});\n\ntest(\"Order follows creation contract\", function () {\n  const body = res.getBody();\n  expect(body.orderId).to.match(/^ORD-[0-9a-f]{6}$/);\n  expect(body.status).to.equal('created');\n  expect(body.totalPrice).to.be.a('number');\n});",
+            "docs": "",
+            "params": []
+          },
+          "examples": [],
+          "uid": "3eba98aade5ba2227ac8d"
+        },
+        {
+          "type": "http-request",
+          "name": "Exhausted inventory",
+          "seq": 4,
+          "settings": {},
+          "app": null,
+          "tags": [],
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/menu",
+            "headers": [
+              {
+                "name": "Accept",
+                "value": "application/json",
+                "enabled": true,
+                "uid": "a86ed015b223cd0edca44"
+              }
+            ],
+            "auth": {
+              "mode": "none"
+            },
+            "body": {
+              "mode": "none"
+            },
+            "script": {
+              "res": "bru.setVar('menuBefore', res.getBody());"
+            },
+            "vars": {},
+            "assertions": [],
+            "tests": "test(\"Response is JSON\", function () {\n  expect(res.getHeader(\"content-type\")).to.include(\"application/json\");\n});\n\ntest(\"HTTP status is 200\", function () {\n  expect(res.getStatus()).to.equal(200);\n});\n\ntest(\"Last unit is consumed\", function () {\n  const rice = res.getBody().find(item => item.id === 2);\n  expect(rice.stock).to.equal(0);\n  expect(res.getBody().find(item => item.id === 1).stock).to.equal(2);\n});",
+            "docs": "",
+            "params": []
+          },
+          "examples": [],
+          "uid": "db5c780af229a6564db79"
+        },
+        {
+          "type": "http-request",
+          "name": "Reject exhausted item",
+          "seq": 5,
+          "settings": {},
+          "app": null,
+          "tags": [],
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/orders",
+            "headers": [
+              {
+                "name": "Accept",
+                "value": "application/json",
+                "enabled": true,
+                "uid": "6bc1c8f0d99ba8289863f"
+              },
+              {
+                "name": "Content-Type",
+                "value": "application/json",
+                "enabled": true,
+                "uid": "3becbf965703700d99797"
+              },
+              {
+                "name": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "enabled": true,
+                "uid": "82043f8457f0fb8b5504e"
+              }
+            ],
+            "auth": {
+              "mode": "none"
+            },
+            "body": {
+              "json": "{\n  \"itemId\": 2,\n  \"quantity\": 1\n}",
+              "mode": "json"
+            },
+            "script": {},
+            "vars": {},
+            "assertions": [],
+            "tests": "test(\"Response is JSON\", function () {\n  expect(res.getHeader(\"content-type\")).to.include(\"application/json\");\n});\n\ntest(\"HTTP status is 400\", function () {\n  expect(res.getStatus()).to.equal(400);\n});\n\ntest(\"Error body describes rejection\", function () {\n  expect(res.getBody()).to.have.property(\"error\").that.is.a(\"string\");\n  expect(res.getBody().error).to.equal(\"Out of stock\");\n});",
+            "docs": "",
+            "params": []
+          },
+          "examples": [],
+          "uid": "5c4b9c687ff2445d6ab80"
+        },
+        {
+          "type": "http-request",
+          "name": "Inventory after rejection",
+          "seq": 6,
+          "settings": {},
+          "app": null,
+          "tags": [],
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/menu",
+            "headers": [
+              {
+                "name": "Accept",
+                "value": "application/json",
+                "enabled": true,
+                "uid": "a38f5b373b4ff54bd19d0"
+              }
+            ],
+            "auth": {
+              "mode": "none"
+            },
+            "body": {
+              "mode": "none"
+            },
+            "script": {},
+            "vars": {},
+            "assertions": [],
+            "tests": "test(\"Response is JSON\", function () {\n  expect(res.getHeader(\"content-type\")).to.include(\"application/json\");\n});\n\ntest(\"HTTP status is 200\", function () {\n  expect(res.getStatus()).to.equal(200);\n});\n\ntest(\"Rejected request does not change inventory\", function () {\n  expect(res.getBody()).to.deep.equal(bru.getVar('menuBefore'));\n});\n\ntest(\"Inventory never becomes negative\", function () {\n  res.getBody().forEach(item => expect(item.stock).to.be.at.least(0));\n});",
+            "docs": "",
+            "params": []
+          },
+          "examples": [],
+          "uid": "2f91b895aca3776e90813"
+        }
+      ],
+      "uid": "c6c343454f28fec8ef45c"
+    },
+    {
+      "name": "04-overstock",
+      "type": "folder",
+      "items": [
+        {
+          "type": "http-request",
+          "name": "Login",
+          "seq": 1,
+          "settings": {},
+          "app": null,
+          "tags": [],
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/auth/login",
+            "headers": [
+              {
+                "name": "Accept",
+                "value": "application/json",
+                "enabled": true,
+                "uid": "3aa9c80ebebe433d3b7a3"
+              },
+              {
+                "name": "Content-Type",
+                "value": "application/json",
+                "enabled": true,
+                "uid": "95c93414b8a696b29d6a6"
+              }
+            ],
+            "auth": {
+              "mode": "none"
+            },
+            "body": {
+              "json": "{\n  \"username\": \"{{username}}\",\n  \"password\": \"{{password}}\"\n}",
+              "mode": "json"
+            },
+            "script": {
+              "res": "const body = res.getBody();\nif (res.getStatus() === 200 && typeof body.accessToken === 'string') {\n  bru.setEnvVar('accessToken', body.accessToken);\n}"
+            },
+            "vars": {},
+            "assertions": [],
+            "tests": "test(\"Response is JSON\", function () {\n  expect(res.getHeader(\"content-type\")).to.include(\"application/json\");\n});\n\ntest(\"HTTP status is 200\", function () {\n  expect(res.getStatus()).to.equal(200);\n});\n\ntest(\"Login exposes token and one-hour lifetime\", function () {\n  expect(res.getBody().accessToken).to.be.a('string').and.not.be.empty;\n  expect(res.getBody().expiresIn).to.equal(3600);\n});",
+            "docs": "",
+            "params": []
+          },
+          "examples": [],
+          "uid": "54a30d22221533e4151bf"
+        },
+        {
+          "type": "http-request",
+          "name": "Menu baseline",
+          "seq": 2,
+          "settings": {},
+          "app": null,
+          "tags": [],
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/menu",
+            "headers": [
+              {
+                "name": "Accept",
+                "value": "application/json",
+                "enabled": true,
+                "uid": "6fc0ae06608ceeabb9730"
+              }
+            ],
+            "auth": {
+              "mode": "none"
+            },
+            "body": {
+              "mode": "none"
+            },
+            "script": {
+              "res": "const items = res.getBody();\nbru.setVar('menuBefore', items);\nbru.setVar('expectedTotal', items.find(item => item.id === 1).price);"
+            },
+            "vars": {},
+            "assertions": [],
+            "tests": "test(\"Response is JSON\", function () {\n  expect(res.getHeader(\"content-type\")).to.include(\"application/json\");\n});\n\ntest(\"HTTP status is 200\", function () {\n  expect(res.getStatus()).to.equal(200);\n});\n\ntest(\"Menu respects item schema\", function () {\n  const items = res.getBody();\n  expect(items).to.be.an('array').with.lengthOf(2);\n  expect(items.map(item => item.id)).to.have.members([1, 2]);\n  items.forEach(item => {\n    expect(item.name).to.be.a('string').and.not.be.empty;\n    expect(item.price).to.be.a('number').and.above(0);\n    expect(item.stock).to.be.a('number').and.at.least(0);\n    expect(Number.isInteger(item.stock)).to.equal(true);\n  });\n});",
+            "docs": "",
+            "params": []
+          },
+          "examples": [],
+          "uid": "25756f69b56eaeadb14dd"
+        },
+        {
+          "type": "http-request",
+          "name": "Reject excess quantity",
+          "seq": 3,
+          "settings": {},
+          "app": null,
+          "tags": [],
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/orders",
+            "headers": [
+              {
+                "name": "Accept",
+                "value": "application/json",
+                "enabled": true,
+                "uid": "05ab3bc027ffe42b1f4e8"
+              },
+              {
+                "name": "Content-Type",
+                "value": "application/json",
+                "enabled": true,
+                "uid": "0e0a311d0552d15097870"
+              },
+              {
+                "name": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "enabled": true,
+                "uid": "4d7a24d799f1e3863b565"
+              }
+            ],
+            "auth": {
+              "mode": "none"
+            },
+            "body": {
+              "json": "{\n  \"itemId\": 1,\n  \"quantity\": 3\n}",
+              "mode": "json"
+            },
+            "script": {},
+            "vars": {},
+            "assertions": [],
+            "tests": "test(\"Response is JSON\", function () {\n  expect(res.getHeader(\"content-type\")).to.include(\"application/json\");\n});\n\ntest(\"HTTP status is 400\", function () {\n  expect(res.getStatus()).to.equal(400);\n});\n\ntest(\"Error body describes rejection\", function () {\n  expect(res.getBody()).to.have.property(\"error\").that.is.a(\"string\");\n});",
+            "docs": "",
+            "params": []
+          },
+          "examples": [],
+          "uid": "d2dac2b40d7254861c616"
+        },
+        {
+          "type": "http-request",
+          "name": "Inventory after rejection",
+          "seq": 4,
+          "settings": {},
+          "app": null,
+          "tags": [],
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/menu",
+            "headers": [
+              {
+                "name": "Accept",
+                "value": "application/json",
+                "enabled": true,
+                "uid": "11965637db1a87e5e9221"
+              }
+            ],
+            "auth": {
+              "mode": "none"
+            },
+            "body": {
+              "mode": "none"
+            },
+            "script": {},
+            "vars": {},
+            "assertions": [],
+            "tests": "test(\"Response is JSON\", function () {\n  expect(res.getHeader(\"content-type\")).to.include(\"application/json\");\n});\n\ntest(\"HTTP status is 200\", function () {\n  expect(res.getStatus()).to.equal(200);\n});\n\ntest(\"Rejected request does not change inventory\", function () {\n  expect(res.getBody()).to.deep.equal(bru.getVar('menuBefore'));\n});\n\ntest(\"Inventory never becomes negative\", function () {\n  res.getBody().forEach(item => expect(item.stock).to.be.at.least(0));\n});",
+            "docs": "",
+            "params": []
+          },
+          "examples": [],
+          "uid": "76d96540563d831d97895"
+        }
+      ],
+      "uid": "4b597ff23699378c3e285"
+    },
+    {
+      "name": "05-zero-quantity",
+      "type": "folder",
+      "items": [
+        {
+          "type": "http-request",
+          "name": "Login",
+          "seq": 1,
+          "settings": {},
+          "app": null,
+          "tags": [],
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/auth/login",
+            "headers": [
+              {
+                "name": "Accept",
+                "value": "application/json",
+                "enabled": true,
+                "uid": "ed9b4a4851bb48cffec59"
+              },
+              {
+                "name": "Content-Type",
+                "value": "application/json",
+                "enabled": true,
+                "uid": "fcbeae3fdffd2b5d0ff18"
+              }
+            ],
+            "auth": {
+              "mode": "none"
+            },
+            "body": {
+              "json": "{\n  \"username\": \"{{username}}\",\n  \"password\": \"{{password}}\"\n}",
+              "mode": "json"
+            },
+            "script": {
+              "res": "const body = res.getBody();\nif (res.getStatus() === 200 && typeof body.accessToken === 'string') {\n  bru.setEnvVar('accessToken', body.accessToken);\n}"
+            },
+            "vars": {},
+            "assertions": [],
+            "tests": "test(\"Response is JSON\", function () {\n  expect(res.getHeader(\"content-type\")).to.include(\"application/json\");\n});\n\ntest(\"HTTP status is 200\", function () {\n  expect(res.getStatus()).to.equal(200);\n});\n\ntest(\"Login exposes token and one-hour lifetime\", function () {\n  expect(res.getBody().accessToken).to.be.a('string').and.not.be.empty;\n  expect(res.getBody().expiresIn).to.equal(3600);\n});",
+            "docs": "",
+            "params": []
+          },
+          "examples": [],
+          "uid": "5ad34386286bb51040cc7"
+        },
+        {
+          "type": "http-request",
+          "name": "Menu baseline",
+          "seq": 2,
+          "settings": {},
+          "app": null,
+          "tags": [],
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/menu",
+            "headers": [
+              {
+                "name": "Accept",
+                "value": "application/json",
+                "enabled": true,
+                "uid": "72abbd58ab64a87b31022"
+              }
+            ],
+            "auth": {
+              "mode": "none"
+            },
+            "body": {
+              "mode": "none"
+            },
+            "script": {
+              "res": "const items = res.getBody();\nbru.setVar('menuBefore', items);\nbru.setVar('expectedTotal', items.find(item => item.id === 1).price);"
+            },
+            "vars": {},
+            "assertions": [],
+            "tests": "test(\"Response is JSON\", function () {\n  expect(res.getHeader(\"content-type\")).to.include(\"application/json\");\n});\n\ntest(\"HTTP status is 200\", function () {\n  expect(res.getStatus()).to.equal(200);\n});\n\ntest(\"Menu respects item schema\", function () {\n  const items = res.getBody();\n  expect(items).to.be.an('array').with.lengthOf(2);\n  expect(items.map(item => item.id)).to.have.members([1, 2]);\n  items.forEach(item => {\n    expect(item.name).to.be.a('string').and.not.be.empty;\n    expect(item.price).to.be.a('number').and.above(0);\n    expect(item.stock).to.be.a('number').and.at.least(0);\n    expect(Number.isInteger(item.stock)).to.equal(true);\n  });\n});",
+            "docs": "",
+            "params": []
+          },
+          "examples": [],
+          "uid": "ffe9163b424eab6dd2d93"
+        },
+        {
+          "type": "http-request",
+          "name": "Reject zero quantity",
+          "seq": 3,
+          "settings": {},
+          "app": null,
+          "tags": [],
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/orders",
+            "headers": [
+              {
+                "name": "Accept",
+                "value": "application/json",
+                "enabled": true,
+                "uid": "c8495092698dfb0bbaa73"
+              },
+              {
+                "name": "Content-Type",
+                "value": "application/json",
+                "enabled": true,
+                "uid": "f971b6a34eaf73cd57113"
+              },
+              {
+                "name": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "enabled": true,
+                "uid": "116600fe6515d71f3c6ae"
+              }
+            ],
+            "auth": {
+              "mode": "none"
+            },
+            "body": {
+              "json": "{\n  \"itemId\": 1,\n  \"quantity\": 0\n}",
+              "mode": "json"
+            },
+            "script": {},
+            "vars": {},
+            "assertions": [],
+            "tests": "test(\"Response is JSON\", function () {\n  expect(res.getHeader(\"content-type\")).to.include(\"application/json\");\n});\n\ntest(\"Invalid quantity is rejected with 400 or 422\", function () {\n  expect(res.getStatus()).to.be.oneOf([400, 422]);\n});\n\ntest(\"Error body describes rejection\", function () {\n  expect(res.getBody()).to.have.property(\"error\").that.is.a(\"string\");\n});",
+            "docs": "",
+            "params": []
+          },
+          "examples": [],
+          "uid": "9ed6bfbc5d42d5e85ddd0"
+        },
+        {
+          "type": "http-request",
+          "name": "Inventory after rejection",
+          "seq": 4,
+          "settings": {},
+          "app": null,
+          "tags": [],
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/menu",
+            "headers": [
+              {
+                "name": "Accept",
+                "value": "application/json",
+                "enabled": true,
+                "uid": "2cbd231d5ad3665591668"
+              }
+            ],
+            "auth": {
+              "mode": "none"
+            },
+            "body": {
+              "mode": "none"
+            },
+            "script": {},
+            "vars": {},
+            "assertions": [],
+            "tests": "test(\"Response is JSON\", function () {\n  expect(res.getHeader(\"content-type\")).to.include(\"application/json\");\n});\n\ntest(\"HTTP status is 200\", function () {\n  expect(res.getStatus()).to.equal(200);\n});\n\ntest(\"Rejected request does not change inventory\", function () {\n  expect(res.getBody()).to.deep.equal(bru.getVar('menuBefore'));\n});\n\ntest(\"Inventory never becomes negative\", function () {\n  res.getBody().forEach(item => expect(item.stock).to.be.at.least(0));\n});",
+            "docs": "",
+            "params": []
+          },
+          "examples": [],
+          "uid": "b34642cfc8793e11e30da"
+        }
+      ],
+      "uid": "e53907ffc5a9b72b41257"
+    },
+    {
+      "name": "06-negative-quantity",
+      "type": "folder",
+      "items": [
+        {
+          "type": "http-request",
+          "name": "Login",
+          "seq": 1,
+          "settings": {},
+          "app": null,
+          "tags": [],
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/auth/login",
+            "headers": [
+              {
+                "name": "Accept",
+                "value": "application/json",
+                "enabled": true,
+                "uid": "ce5a0b550aed20501f92a"
+              },
+              {
+                "name": "Content-Type",
+                "value": "application/json",
+                "enabled": true,
+                "uid": "e8b5c900c443ad25dae21"
+              }
+            ],
+            "auth": {
+              "mode": "none"
+            },
+            "body": {
+              "json": "{\n  \"username\": \"{{username}}\",\n  \"password\": \"{{password}}\"\n}",
+              "mode": "json"
+            },
+            "script": {
+              "res": "const body = res.getBody();\nif (res.getStatus() === 200 && typeof body.accessToken === 'string') {\n  bru.setEnvVar('accessToken', body.accessToken);\n}"
+            },
+            "vars": {},
+            "assertions": [],
+            "tests": "test(\"Response is JSON\", function () {\n  expect(res.getHeader(\"content-type\")).to.include(\"application/json\");\n});\n\ntest(\"HTTP status is 200\", function () {\n  expect(res.getStatus()).to.equal(200);\n});\n\ntest(\"Login exposes token and one-hour lifetime\", function () {\n  expect(res.getBody().accessToken).to.be.a('string').and.not.be.empty;\n  expect(res.getBody().expiresIn).to.equal(3600);\n});",
+            "docs": "",
+            "params": []
+          },
+          "examples": [],
+          "uid": "957572207ed3cbd05344d"
+        },
+        {
+          "type": "http-request",
+          "name": "Menu baseline",
+          "seq": 2,
+          "settings": {},
+          "app": null,
+          "tags": [],
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/menu",
+            "headers": [
+              {
+                "name": "Accept",
+                "value": "application/json",
+                "enabled": true,
+                "uid": "1e92b2b1d89933521bacd"
+              }
+            ],
+            "auth": {
+              "mode": "none"
+            },
+            "body": {
+              "mode": "none"
+            },
+            "script": {
+              "res": "const items = res.getBody();\nbru.setVar('menuBefore', items);\nbru.setVar('expectedTotal', items.find(item => item.id === 1).price);"
+            },
+            "vars": {},
+            "assertions": [],
+            "tests": "test(\"Response is JSON\", function () {\n  expect(res.getHeader(\"content-type\")).to.include(\"application/json\");\n});\n\ntest(\"HTTP status is 200\", function () {\n  expect(res.getStatus()).to.equal(200);\n});\n\ntest(\"Menu respects item schema\", function () {\n  const items = res.getBody();\n  expect(items).to.be.an('array').with.lengthOf(2);\n  expect(items.map(item => item.id)).to.have.members([1, 2]);\n  items.forEach(item => {\n    expect(item.name).to.be.a('string').and.not.be.empty;\n    expect(item.price).to.be.a('number').and.above(0);\n    expect(item.stock).to.be.a('number').and.at.least(0);\n    expect(Number.isInteger(item.stock)).to.equal(true);\n  });\n});",
+            "docs": "",
+            "params": []
+          },
+          "examples": [],
+          "uid": "26571681108f41c155407"
+        },
+        {
+          "type": "http-request",
+          "name": "Reject negative quantity",
+          "seq": 3,
+          "settings": {},
+          "app": null,
+          "tags": [],
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/orders",
+            "headers": [
+              {
+                "name": "Accept",
+                "value": "application/json",
+                "enabled": true,
+                "uid": "c40072c94d3511f7830b8"
+              },
+              {
+                "name": "Content-Type",
+                "value": "application/json",
+                "enabled": true,
+                "uid": "cb0374fa0715fb93e81cb"
+              },
+              {
+                "name": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "enabled": true,
+                "uid": "ddb28c3da8fa39cbc1c6d"
+              }
+            ],
+            "auth": {
+              "mode": "none"
+            },
+            "body": {
+              "json": "{\n  \"itemId\": 1,\n  \"quantity\": -1\n}",
+              "mode": "json"
+            },
+            "script": {},
+            "vars": {},
+            "assertions": [],
+            "tests": "test(\"Response is JSON\", function () {\n  expect(res.getHeader(\"content-type\")).to.include(\"application/json\");\n});\n\ntest(\"Invalid quantity is rejected with 400 or 422\", function () {\n  expect(res.getStatus()).to.be.oneOf([400, 422]);\n});\n\ntest(\"Error body describes rejection\", function () {\n  expect(res.getBody()).to.have.property(\"error\").that.is.a(\"string\");\n});",
+            "docs": "",
+            "params": []
+          },
+          "examples": [],
+          "uid": "c3bdbd47b2e18b9e45f52"
+        },
+        {
+          "type": "http-request",
+          "name": "Inventory after rejection",
+          "seq": 4,
+          "settings": {},
+          "app": null,
+          "tags": [],
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/menu",
+            "headers": [
+              {
+                "name": "Accept",
+                "value": "application/json",
+                "enabled": true,
+                "uid": "1c0046e50d7dbff5f0729"
+              }
+            ],
+            "auth": {
+              "mode": "none"
+            },
+            "body": {
+              "mode": "none"
+            },
+            "script": {},
+            "vars": {},
+            "assertions": [],
+            "tests": "test(\"Response is JSON\", function () {\n  expect(res.getHeader(\"content-type\")).to.include(\"application/json\");\n});\n\ntest(\"HTTP status is 200\", function () {\n  expect(res.getStatus()).to.equal(200);\n});\n\ntest(\"Rejected request does not change inventory\", function () {\n  expect(res.getBody()).to.deep.equal(bru.getVar('menuBefore'));\n});\n\ntest(\"Inventory never becomes negative\", function () {\n  res.getBody().forEach(item => expect(item.stock).to.be.at.least(0));\n});",
+            "docs": "",
+            "params": []
+          },
+          "examples": [],
+          "uid": "c62f2008c61fb8a954ee9"
+        }
+      ],
+      "uid": "6f752ab3240561498e77f"
+    },
+    {
+      "name": "07-missing-quantity",
+      "type": "folder",
+      "items": [
+        {
+          "type": "http-request",
+          "name": "Login",
+          "seq": 1,
+          "settings": {},
+          "app": null,
+          "tags": [],
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/auth/login",
+            "headers": [
+              {
+                "name": "Accept",
+                "value": "application/json",
+                "enabled": true,
+                "uid": "8ee4cd5c2b2392d8710dc"
+              },
+              {
+                "name": "Content-Type",
+                "value": "application/json",
+                "enabled": true,
+                "uid": "30930f600596f001fbbad"
+              }
+            ],
+            "auth": {
+              "mode": "none"
+            },
+            "body": {
+              "json": "{\n  \"username\": \"{{username}}\",\n  \"password\": \"{{password}}\"\n}",
+              "mode": "json"
+            },
+            "script": {
+              "res": "const body = res.getBody();\nif (res.getStatus() === 200 && typeof body.accessToken === 'string') {\n  bru.setEnvVar('accessToken', body.accessToken);\n}"
+            },
+            "vars": {},
+            "assertions": [],
+            "tests": "test(\"Response is JSON\", function () {\n  expect(res.getHeader(\"content-type\")).to.include(\"application/json\");\n});\n\ntest(\"HTTP status is 200\", function () {\n  expect(res.getStatus()).to.equal(200);\n});\n\ntest(\"Login exposes token and one-hour lifetime\", function () {\n  expect(res.getBody().accessToken).to.be.a('string').and.not.be.empty;\n  expect(res.getBody().expiresIn).to.equal(3600);\n});",
+            "docs": "",
+            "params": []
+          },
+          "examples": [],
+          "uid": "50c1c8e5c816659d94ef0"
+        },
+        {
+          "type": "http-request",
+          "name": "Menu baseline",
+          "seq": 2,
+          "settings": {},
+          "app": null,
+          "tags": [],
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/menu",
+            "headers": [
+              {
+                "name": "Accept",
+                "value": "application/json",
+                "enabled": true,
+                "uid": "df295376a66e802dc4e2c"
+              }
+            ],
+            "auth": {
+              "mode": "none"
+            },
+            "body": {
+              "mode": "none"
+            },
+            "script": {
+              "res": "const items = res.getBody();\nbru.setVar('menuBefore', items);\nbru.setVar('expectedTotal', items.find(item => item.id === 1).price);"
+            },
+            "vars": {},
+            "assertions": [],
+            "tests": "test(\"Response is JSON\", function () {\n  expect(res.getHeader(\"content-type\")).to.include(\"application/json\");\n});\n\ntest(\"HTTP status is 200\", function () {\n  expect(res.getStatus()).to.equal(200);\n});\n\ntest(\"Menu respects item schema\", function () {\n  const items = res.getBody();\n  expect(items).to.be.an('array').with.lengthOf(2);\n  expect(items.map(item => item.id)).to.have.members([1, 2]);\n  items.forEach(item => {\n    expect(item.name).to.be.a('string').and.not.be.empty;\n    expect(item.price).to.be.a('number').and.above(0);\n    expect(item.stock).to.be.a('number').and.at.least(0);\n    expect(Number.isInteger(item.stock)).to.equal(true);\n  });\n});",
+            "docs": "",
+            "params": []
+          },
+          "examples": [],
+          "uid": "9166ca3fb9b75592b6e95"
+        },
+        {
+          "type": "http-request",
+          "name": "Reject missing quantity",
+          "seq": 3,
+          "settings": {},
+          "app": null,
+          "tags": [],
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/orders",
+            "headers": [
+              {
+                "name": "Accept",
+                "value": "application/json",
+                "enabled": true,
+                "uid": "2b2ee243f6b926ae87133"
+              },
+              {
+                "name": "Content-Type",
+                "value": "application/json",
+                "enabled": true,
+                "uid": "a1d7427cda6f7475c628c"
+              },
+              {
+                "name": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "enabled": true,
+                "uid": "8d630cf828af15546b9d8"
+              }
+            ],
+            "auth": {
+              "mode": "none"
+            },
+            "body": {
+              "json": "{\n  \"itemId\": 1\n}",
+              "mode": "json"
+            },
+            "script": {},
+            "vars": {},
+            "assertions": [],
+            "tests": "test(\"Response is JSON\", function () {\n  expect(res.getHeader(\"content-type\")).to.include(\"application/json\");\n});\n\ntest(\"Invalid quantity is rejected with 400 or 422\", function () {\n  expect(res.getStatus()).to.be.oneOf([400, 422]);\n});\n\ntest(\"Error body describes rejection\", function () {\n  expect(res.getBody()).to.have.property(\"error\").that.is.a(\"string\");\n});",
+            "docs": "",
+            "params": []
+          },
+          "examples": [],
+          "uid": "8f5343bd2792cdb9eda16"
+        },
+        {
+          "type": "http-request",
+          "name": "Inventory after rejection",
+          "seq": 4,
+          "settings": {},
+          "app": null,
+          "tags": [],
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/menu",
+            "headers": [
+              {
+                "name": "Accept",
+                "value": "application/json",
+                "enabled": true,
+                "uid": "dcfbb14369b0184024e57"
+              }
+            ],
+            "auth": {
+              "mode": "none"
+            },
+            "body": {
+              "mode": "none"
+            },
+            "script": {},
+            "vars": {},
+            "assertions": [],
+            "tests": "test(\"Response is JSON\", function () {\n  expect(res.getHeader(\"content-type\")).to.include(\"application/json\");\n});\n\ntest(\"HTTP status is 200\", function () {\n  expect(res.getStatus()).to.equal(200);\n});\n\ntest(\"Rejected request does not change inventory\", function () {\n  expect(res.getBody()).to.deep.equal(bru.getVar('menuBefore'));\n});\n\ntest(\"Inventory never becomes negative\", function () {\n  res.getBody().forEach(item => expect(item.stock).to.be.at.least(0));\n});",
+            "docs": "",
+            "params": []
+          },
+          "examples": [],
+          "uid": "5e8dd8208dc8c19f31d38"
+        }
+      ],
+      "uid": "827ad72b4b01cf7d0669b"
+    },
+    {
+      "name": "08-fractional-quantity",
+      "type": "folder",
+      "items": [
+        {
+          "type": "http-request",
+          "name": "Login",
+          "seq": 1,
+          "settings": {},
+          "app": null,
+          "tags": [],
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/auth/login",
+            "headers": [
+              {
+                "name": "Accept",
+                "value": "application/json",
+                "enabled": true,
+                "uid": "ca7872e29d1304f81d72d"
+              },
+              {
+                "name": "Content-Type",
+                "value": "application/json",
+                "enabled": true,
+                "uid": "86f1eba51f4aebb2c5bcb"
+              }
+            ],
+            "auth": {
+              "mode": "none"
+            },
+            "body": {
+              "json": "{\n  \"username\": \"{{username}}\",\n  \"password\": \"{{password}}\"\n}",
+              "mode": "json"
+            },
+            "script": {
+              "res": "const body = res.getBody();\nif (res.getStatus() === 200 && typeof body.accessToken === 'string') {\n  bru.setEnvVar('accessToken', body.accessToken);\n}"
+            },
+            "vars": {},
+            "assertions": [],
+            "tests": "test(\"Response is JSON\", function () {\n  expect(res.getHeader(\"content-type\")).to.include(\"application/json\");\n});\n\ntest(\"HTTP status is 200\", function () {\n  expect(res.getStatus()).to.equal(200);\n});\n\ntest(\"Login exposes token and one-hour lifetime\", function () {\n  expect(res.getBody().accessToken).to.be.a('string').and.not.be.empty;\n  expect(res.getBody().expiresIn).to.equal(3600);\n});",
+            "docs": "",
+            "params": []
+          },
+          "examples": [],
+          "uid": "7cc90607a158cd0fad04e"
+        },
+        {
+          "type": "http-request",
+          "name": "Menu baseline",
+          "seq": 2,
+          "settings": {},
+          "app": null,
+          "tags": [],
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/menu",
+            "headers": [
+              {
+                "name": "Accept",
+                "value": "application/json",
+                "enabled": true,
+                "uid": "5abd39b24c5d007f8722f"
+              }
+            ],
+            "auth": {
+              "mode": "none"
+            },
+            "body": {
+              "mode": "none"
+            },
+            "script": {
+              "res": "const items = res.getBody();\nbru.setVar('menuBefore', items);\nbru.setVar('expectedTotal', items.find(item => item.id === 1).price);"
+            },
+            "vars": {},
+            "assertions": [],
+            "tests": "test(\"Response is JSON\", function () {\n  expect(res.getHeader(\"content-type\")).to.include(\"application/json\");\n});\n\ntest(\"HTTP status is 200\", function () {\n  expect(res.getStatus()).to.equal(200);\n});\n\ntest(\"Menu respects item schema\", function () {\n  const items = res.getBody();\n  expect(items).to.be.an('array').with.lengthOf(2);\n  expect(items.map(item => item.id)).to.have.members([1, 2]);\n  items.forEach(item => {\n    expect(item.name).to.be.a('string').and.not.be.empty;\n    expect(item.price).to.be.a('number').and.above(0);\n    expect(item.stock).to.be.a('number').and.at.least(0);\n    expect(Number.isInteger(item.stock)).to.equal(true);\n  });\n});",
+            "docs": "",
+            "params": []
+          },
+          "examples": [],
+          "uid": "05edeb1dd57345b4c560f"
+        },
+        {
+          "type": "http-request",
+          "name": "Reject fractional quantity",
+          "seq": 3,
+          "settings": {},
+          "app": null,
+          "tags": [],
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/orders",
+            "headers": [
+              {
+                "name": "Accept",
+                "value": "application/json",
+                "enabled": true,
+                "uid": "4d17b1d4ddcc74988cc05"
+              },
+              {
+                "name": "Content-Type",
+                "value": "application/json",
+                "enabled": true,
+                "uid": "5c4180763ca1351c81806"
+              },
+              {
+                "name": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "enabled": true,
+                "uid": "2c457b29ac7fb8d2482e2"
+              }
+            ],
+            "auth": {
+              "mode": "none"
+            },
+            "body": {
+              "json": "{\n  \"itemId\": 1,\n  \"quantity\": 1.5\n}",
+              "mode": "json"
+            },
+            "script": {},
+            "vars": {},
+            "assertions": [],
+            "tests": "test(\"Response is JSON\", function () {\n  expect(res.getHeader(\"content-type\")).to.include(\"application/json\");\n});\n\ntest(\"Invalid quantity is rejected with 400 or 422\", function () {\n  expect(res.getStatus()).to.be.oneOf([400, 422]);\n});\n\ntest(\"Error body describes rejection\", function () {\n  expect(res.getBody()).to.have.property(\"error\").that.is.a(\"string\");\n});",
+            "docs": "",
+            "params": []
+          },
+          "examples": [],
+          "uid": "74ec0ed842db47c567293"
+        },
+        {
+          "type": "http-request",
+          "name": "Inventory after rejection",
+          "seq": 4,
+          "settings": {},
+          "app": null,
+          "tags": [],
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/menu",
+            "headers": [
+              {
+                "name": "Accept",
+                "value": "application/json",
+                "enabled": true,
+                "uid": "04afb53623c312bbea91e"
+              }
+            ],
+            "auth": {
+              "mode": "none"
+            },
+            "body": {
+              "mode": "none"
+            },
+            "script": {},
+            "vars": {},
+            "assertions": [],
+            "tests": "test(\"Response is JSON\", function () {\n  expect(res.getHeader(\"content-type\")).to.include(\"application/json\");\n});\n\ntest(\"HTTP status is 200\", function () {\n  expect(res.getStatus()).to.equal(200);\n});\n\ntest(\"Rejected request does not change inventory\", function () {\n  expect(res.getBody()).to.deep.equal(bru.getVar('menuBefore'));\n});\n\ntest(\"Inventory never becomes negative\", function () {\n  res.getBody().forEach(item => expect(item.stock).to.be.at.least(0));\n});",
+            "docs": "",
+            "params": []
+          },
+          "examples": [],
+          "uid": "e28a82e2d9250c343312e"
+        }
+      ],
+      "uid": "9963c75286a199b72bf09"
+    },
+    {
+      "name": "09-string-quantity",
+      "type": "folder",
+      "items": [
+        {
+          "type": "http-request",
+          "name": "Login",
+          "seq": 1,
+          "settings": {},
+          "app": null,
+          "tags": [],
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/auth/login",
+            "headers": [
+              {
+                "name": "Accept",
+                "value": "application/json",
+                "enabled": true,
+                "uid": "3349642a83bc350274b56"
+              },
+              {
+                "name": "Content-Type",
+                "value": "application/json",
+                "enabled": true,
+                "uid": "9e75bccb0e80f7f6b7c4e"
+              }
+            ],
+            "auth": {
+              "mode": "none"
+            },
+            "body": {
+              "json": "{\n  \"username\": \"{{username}}\",\n  \"password\": \"{{password}}\"\n}",
+              "mode": "json"
+            },
+            "script": {
+              "res": "const body = res.getBody();\nif (res.getStatus() === 200 && typeof body.accessToken === 'string') {\n  bru.setEnvVar('accessToken', body.accessToken);\n}"
+            },
+            "vars": {},
+            "assertions": [],
+            "tests": "test(\"Response is JSON\", function () {\n  expect(res.getHeader(\"content-type\")).to.include(\"application/json\");\n});\n\ntest(\"HTTP status is 200\", function () {\n  expect(res.getStatus()).to.equal(200);\n});\n\ntest(\"Login exposes token and one-hour lifetime\", function () {\n  expect(res.getBody().accessToken).to.be.a('string').and.not.be.empty;\n  expect(res.getBody().expiresIn).to.equal(3600);\n});",
+            "docs": "",
+            "params": []
+          },
+          "examples": [],
+          "uid": "05b55ddd5af8cf3ef0b88"
+        },
+        {
+          "type": "http-request",
+          "name": "Menu baseline",
+          "seq": 2,
+          "settings": {},
+          "app": null,
+          "tags": [],
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/menu",
+            "headers": [
+              {
+                "name": "Accept",
+                "value": "application/json",
+                "enabled": true,
+                "uid": "959c3def6649f36636b08"
+              }
+            ],
+            "auth": {
+              "mode": "none"
+            },
+            "body": {
+              "mode": "none"
+            },
+            "script": {
+              "res": "const items = res.getBody();\nbru.setVar('menuBefore', items);\nbru.setVar('expectedTotal', items.find(item => item.id === 1).price);"
+            },
+            "vars": {},
+            "assertions": [],
+            "tests": "test(\"Response is JSON\", function () {\n  expect(res.getHeader(\"content-type\")).to.include(\"application/json\");\n});\n\ntest(\"HTTP status is 200\", function () {\n  expect(res.getStatus()).to.equal(200);\n});\n\ntest(\"Menu respects item schema\", function () {\n  const items = res.getBody();\n  expect(items).to.be.an('array').with.lengthOf(2);\n  expect(items.map(item => item.id)).to.have.members([1, 2]);\n  items.forEach(item => {\n    expect(item.name).to.be.a('string').and.not.be.empty;\n    expect(item.price).to.be.a('number').and.above(0);\n    expect(item.stock).to.be.a('number').and.at.least(0);\n    expect(Number.isInteger(item.stock)).to.equal(true);\n  });\n});",
+            "docs": "",
+            "params": []
+          },
+          "examples": [],
+          "uid": "0782fc8560a813065d734"
+        },
+        {
+          "type": "http-request",
+          "name": "Reject string quantity",
+          "seq": 3,
+          "settings": {},
+          "app": null,
+          "tags": [],
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/orders",
+            "headers": [
+              {
+                "name": "Accept",
+                "value": "application/json",
+                "enabled": true,
+                "uid": "4a91fe36760ebb612079e"
+              },
+              {
+                "name": "Content-Type",
+                "value": "application/json",
+                "enabled": true,
+                "uid": "2f93deaec155ab25d75ba"
+              },
+              {
+                "name": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "enabled": true,
+                "uid": "af0ad132327143f4269c8"
+              }
+            ],
+            "auth": {
+              "mode": "none"
+            },
+            "body": {
+              "json": "{\n  \"itemId\": 1,\n  \"quantity\": \"one\"\n}",
+              "mode": "json"
+            },
+            "script": {},
+            "vars": {},
+            "assertions": [],
+            "tests": "test(\"Response is JSON\", function () {\n  expect(res.getHeader(\"content-type\")).to.include(\"application/json\");\n});\n\ntest(\"Invalid quantity is rejected with 400 or 422\", function () {\n  expect(res.getStatus()).to.be.oneOf([400, 422]);\n});\n\ntest(\"Error body describes rejection\", function () {\n  expect(res.getBody()).to.have.property(\"error\").that.is.a(\"string\");\n});",
+            "docs": "",
+            "params": []
+          },
+          "examples": [],
+          "uid": "d8574eb30627b5d11d4f9"
+        },
+        {
+          "type": "http-request",
+          "name": "Inventory after rejection",
+          "seq": 4,
+          "settings": {},
+          "app": null,
+          "tags": [],
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/menu",
+            "headers": [
+              {
+                "name": "Accept",
+                "value": "application/json",
+                "enabled": true,
+                "uid": "23e6497e94c75973c2ef7"
+              }
+            ],
+            "auth": {
+              "mode": "none"
+            },
+            "body": {
+              "mode": "none"
+            },
+            "script": {},
+            "vars": {},
+            "assertions": [],
+            "tests": "test(\"Response is JSON\", function () {\n  expect(res.getHeader(\"content-type\")).to.include(\"application/json\");\n});\n\ntest(\"HTTP status is 200\", function () {\n  expect(res.getStatus()).to.equal(200);\n});\n\ntest(\"Rejected request does not change inventory\", function () {\n  expect(res.getBody()).to.deep.equal(bru.getVar('menuBefore'));\n});\n\ntest(\"Inventory never becomes negative\", function () {\n  res.getBody().forEach(item => expect(item.stock).to.be.at.least(0));\n});",
+            "docs": "",
+            "params": []
+          },
+          "examples": [],
+          "uid": "42f08e8e92c6c7a76e423"
+        }
+      ],
+      "uid": "4cc1e3c4fb85fb1d22cad"
+    }
+  ],
+  "environments": [
+    {
+      "name": "local",
+      "variables": [
+        {
+          "name": "baseUrl",
+          "value": "http://localhost:5000",
+          "enabled": true,
+          "secret": false,
+          "type": "text",
+          "uid": "29da50d776739792cb34a"
+        },
+        {
+          "name": "username",
+          "value": "student",
+          "enabled": true,
+          "secret": false,
+          "type": "text",
+          "uid": "868d2c6bf18db0e1bcb0e"
+        },
+        {
+          "name": "password",
+          "value": "hungry",
+          "enabled": true,
+          "secret": false,
+          "type": "text",
+          "uid": "5d7167e4e4fea3cb0bf19"
+        },
+        {
+          "name": "accessToken",
+          "value": "",
+          "enabled": true,
+          "secret": false,
+          "type": "text",
+          "uid": "9691013bed225554d6d75"
+        }
+      ],
+      "uid": "e94a3e0bdba586e42bf86"
+    }
+  ],
+  "uid": "fa7496e4ae840306df41b"
+}

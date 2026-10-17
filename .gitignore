@@ -1,0 +1,10 @@
+.venv/
+node_modules/
+.tools/
+.local/
+__pycache__/
+.env
+bruno/environments/local.bru
+reports/raw/
+reports/server-*.log
+reports/server-*.err

@@ -1,0 +1,53 @@
+meta {
+  name: Create valid order
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUrl}}/orders
+  body: json
+  auth: none
+}
+
+headers {
+  Accept: application/json
+  Content-Type: application/json
+  Authorization: Bearer {{accessToken}}
+}
+
+body:json {
+  {
+    "itemId": 1,
+    "quantity": 1
+  }
+}
+
+script:post-response {
+  const body = res.getBody();
+  if (typeof body.orderId === 'string') {
+    bru.setVar('orderId', body.orderId);
+    bru.setVar('createdOrder', body);
+  }
+}
+
+tests {
+  test("Response is JSON", function () {
+    expect(res.getHeader("content-type")).to.include("application/json");
+  });
+
+  test("HTTP status is 200", function () {
+    expect(res.getStatus()).to.equal(200);
+  });
+
+  test("Order follows creation contract", function () {
+    const body = res.getBody();
+    expect(body.orderId).to.match(/^ORD-[0-9a-f]{6}$/);
+    expect(body.status).to.equal('created');
+    expect(body.totalPrice).to.be.a('number');
+  });
+
+  test("BUG-01 Total equals menu price times quantity", function () {
+    expect(res.getBody().totalPrice).to.equal(bru.getVar('expectedTotal'));
+  });
+}

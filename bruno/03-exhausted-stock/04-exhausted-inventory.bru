@@ -1,0 +1,35 @@
+meta {
+  name: Exhausted inventory
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{baseUrl}}/menu
+  body: none
+  auth: none
+}
+
+headers {
+  Accept: application/json
+}
+
+script:post-response {
+  bru.setVar('menuBefore', res.getBody());
+}
+
+tests {
+  test("Response is JSON", function () {
+    expect(res.getHeader("content-type")).to.include("application/json");
+  });
+
+  test("HTTP status is 200", function () {
+    expect(res.getStatus()).to.equal(200);
+  });
+
+  test("Last unit is consumed", function () {
+    const rice = res.getBody().find(item => item.id === 2);
+    expect(rice.stock).to.equal(0);
+    expect(res.getBody().find(item => item.id === 1).stock).to.equal(2);
+  });
+}

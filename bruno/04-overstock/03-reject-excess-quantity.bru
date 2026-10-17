@@ -1,0 +1,38 @@
+meta {
+  name: Reject excess quantity
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUrl}}/orders
+  body: json
+  auth: none
+}
+
+headers {
+  Accept: application/json
+  Content-Type: application/json
+  Authorization: Bearer {{accessToken}}
+}
+
+body:json {
+  {
+    "itemId": 1,
+    "quantity": 3
+  }
+}
+
+tests {
+  test("Response is JSON", function () {
+    expect(res.getHeader("content-type")).to.include("application/json");
+  });
+
+  test("HTTP status is 400", function () {
+    expect(res.getStatus()).to.equal(400);
+  });
+
+  test("Error body describes rejection", function () {
+    expect(res.getBody()).to.have.property("error").that.is.a("string");
+  });
+}

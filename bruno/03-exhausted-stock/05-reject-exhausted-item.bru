@@ -1,0 +1,39 @@
+meta {
+  name: Reject exhausted item
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{baseUrl}}/orders
+  body: json
+  auth: none
+}
+
+headers {
+  Accept: application/json
+  Content-Type: application/json
+  Authorization: Bearer {{accessToken}}
+}
+
+body:json {
+  {
+    "itemId": 2,
+    "quantity": 1
+  }
+}
+
+tests {
+  test("Response is JSON", function () {
+    expect(res.getHeader("content-type")).to.include("application/json");
+  });
+
+  test("HTTP status is 400", function () {
+    expect(res.getStatus()).to.equal(400);
+  });
+
+  test("Error body describes rejection", function () {
+    expect(res.getBody()).to.have.property("error").that.is.a("string");
+    expect(res.getBody().error).to.equal("Out of stock");
+  });
+}

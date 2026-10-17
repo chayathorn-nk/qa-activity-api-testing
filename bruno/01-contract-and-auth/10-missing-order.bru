@@ -1,0 +1,30 @@
+meta {
+  name: Missing order
+  type: http
+  seq: 10
+}
+
+get {
+  url: {{baseUrl}}/orders/ORD-does-not-exist
+  body: none
+  auth: none
+}
+
+headers {
+  Accept: application/json
+}
+
+tests {
+  test("Response is JSON", function () {
+    expect(res.getHeader("content-type")).to.include("application/json");
+  });
+
+  test("HTTP status is 404", function () {
+    expect(res.getStatus()).to.equal(404);
+  });
+
+  test("Error body describes rejection", function () {
+    expect(res.getBody()).to.have.property("error").that.is.a("string");
+    expect(res.getBody().error).to.equal("Order not found");
+  });
+}

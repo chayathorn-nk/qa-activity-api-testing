@@ -1,0 +1,38 @@
+meta {
+  name: Reject string quantity
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUrl}}/orders
+  body: json
+  auth: none
+}
+
+headers {
+  Accept: application/json
+  Content-Type: application/json
+  Authorization: Bearer {{accessToken}}
+}
+
+body:json {
+  {
+    "itemId": 1,
+    "quantity": "one"
+  }
+}
+
+tests {
+  test("Response is JSON", function () {
+    expect(res.getHeader("content-type")).to.include("application/json");
+  });
+
+  test("Invalid quantity is rejected with 400 or 422", function () {
+    expect(res.getStatus()).to.be.oneOf([400, 422]);
+  });
+
+  test("Error body describes rejection", function () {
+    expect(res.getBody()).to.have.property("error").that.is.a("string");
+  });
+}

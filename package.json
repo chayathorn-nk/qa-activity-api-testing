@@ -1,0 +1,13 @@
+{
+  "name": "auntie-som-api-testing-lab",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Bruno contract and business-rule audit of the unchanged course API",
+  "scripts": {
+    "test": "python scripts/run_lab.py",
+    "verify:export": "node scripts/verify-export.cjs"
+  },
+  "devDependencies": {
+    "@usebruno/cli": "4.2.1"
+  }
+}

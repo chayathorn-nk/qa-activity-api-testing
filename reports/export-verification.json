@@ -1,0 +1,15 @@
+{
+  "requests": 45,
+  "folders": 9,
+  "schemaValidated": true,
+  "requestsScriptsAssertionsAndVariablesPreserved": true,
+  "generatedTokensExcluded": true,
+  "method": "Bruno 4.2.1 filestore parser, collection schema, and CLI collection importer",
+  "archivedReimportExecution": {
+    "requests": 45,
+    "checks": 149,
+    "passed": 128,
+    "failed": 21,
+    "matchesNative": true
+  }
+}

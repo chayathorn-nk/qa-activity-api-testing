@@ -1,0 +1,43 @@
+meta {
+  name: Menu baseline
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrl}}/menu
+  body: none
+  auth: none
+}
+
+headers {
+  Accept: application/json
+}
+
+script:post-response {
+  const items = res.getBody();
+  bru.setVar('menuBefore', items);
+  bru.setVar('expectedTotal', items.find(item => item.id === 1).price);
+}
+
+tests {
+  test("Response is JSON", function () {
+    expect(res.getHeader("content-type")).to.include("application/json");
+  });
+
+  test("HTTP status is 200", function () {
+    expect(res.getStatus()).to.equal(200);
+  });
+
+  test("Menu respects item schema", function () {
+    const items = res.getBody();
+    expect(items).to.be.an('array').with.lengthOf(2);
+    expect(items.map(item => item.id)).to.have.members([1, 2]);
+    items.forEach(item => {
+      expect(item.name).to.be.a('string').and.not.be.empty;
+      expect(item.price).to.be.a('number').and.above(0);
+      expect(item.stock).to.be.a('number').and.at.least(0);
+      expect(Number.isInteger(item.stock)).to.equal(true);
+    });
+  });
+}
